@@ -1,3 +1,4 @@
+
 import React from 'react';
 import DoctorForm from './components/DoctorForm';
 import LabTech from './components/LabTech';
@@ -25,8 +26,10 @@ function App() {
         </h1>
         <LabTech />
       </section>
+
     </div>
   );
 }
 
 export default App;
+
