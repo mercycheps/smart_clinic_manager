@@ -1,0 +1,67 @@
+.labtech-container {
+    max-width: 800px;
+    margin: 24px auto;
+    padding: 24px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .labtech-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 16px;
+    text-align: center;
+    color: #1e3a8a; /* Blue color */
+  }
+  
+  .labtech-empty {
+    color: #6b7280; /* Gray color */
+    text-align: center;
+  }
+  
+  .labtech-requests {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .labtech-request {
+    padding: 16px;
+    border: 1px solid #e5e7eb; /* Light gray border */
+    border-radius: 8px;
+    background-color: #f9fafb; /* Light gray background */
+  }
+  
+  .labtech-actions {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .labtech-textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+  }
+  
+  .labtech-submit-button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    background-color: #10b981; /* Green color */
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .labtech-submit-button:hover {
+    background-color: #059669; /* Darker green */
+  }
+  
+  .labtech-result {
+    margin-top: 8px;
+    color: #10b981; /* Green color */
+  }

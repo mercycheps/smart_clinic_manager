@@ -1,14 +1,20 @@
-import { Link } from 'react-router-dom'
+import React from "react";
+import { Link } from "react-router-dom";
+import "../components/styling/navbar.css";
 
-export default function Navbar() {
+const Navbar = () => {
   return (
-    <nav className="bg-blue-600 text-white p-4 flex justify-between">
-      <h1 className="font-bold">Clinic Manager</h1>
-      <div className="space-x-4">
-        <Link to="/">Home</Link>
-        <Link to="/login">Login</Link>
-        <Link to="/register">Register</Link>
+    <nav className="navbar">
+      <div className="navbar-container">
+        <h1 className="navbar-title">Smart Clinic Manager</h1>
+        <div className="navbar-links">
+          <Link to="/" className="navbar-link">Home</Link>
+          <Link to="/doctor" className="navbar-link">Doctor Dashboard</Link>
+          <Link to="/lab-tech" className="navbar-link">Lab Technician</Link>
+        </div>
       </div>
     </nav>
-  )
-}
+  );
+};
+
+export default Navbar;
