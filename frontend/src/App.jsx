@@ -1,35 +1,24 @@
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+ import Navbar from "./components/Navbar";
+import Login from "./components/Login";
+import Register from "./components/Register";
+import PatientDashboard from "./PatientDashboard";
 
-import React from 'react';
-import DoctorForm from './components/DoctorForm';
-import LabTech from './components/LabTech';
 
 function App() {
-  const handleDoctorSubmit = (data) => {
-    console.log("Submitted Doctor Data:", data);
-    // Optional: send to backend via fetch/axios
-  };
-
   return (
-    <div className="min-h-screen bg-gray-100 py-10 px-4 space-y-12">
-      <section>
-        <h1 className="text-3xl font-bold text-center text-blue-600 mb-6">
-          Doctor Registration
-        </h1>
-        <DoctorForm onSubmit={handleDoctorSubmit} />
-      </section>
-
-      <hr className="my-10 border-t border-gray-300" />
-
-      <section>
-        <h1 className="text-3xl font-bold text-center text-purple-600 mb-6">
-          Lab Technician Panel
-        </h1>
-        <LabTech />
-      </section>
-
-    </div>
+    <Router>
+      <Navbar />
+      <div className="p-4">
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/dashboard/patient" element={<PatientDashboard />} />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 
-export default App;
 
+export default App;
