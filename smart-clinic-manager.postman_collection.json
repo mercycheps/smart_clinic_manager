@@ -1,0 +1,122 @@
+{
+    "info": {
+        "name": "Smart Clinic Manager",
+        "_postman_id": "d8e9f0a1-b2c3-4567-d8e9-f0a1b2c34567",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Register",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {"key": "Content-Type", "value": "application/json"}
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"username\": \"Nene\",\n  \"email\": \"nenee@gmail.com\",\n  \"password\": \"nene123\",\n  \"role\": \"patient\",\n  \"full_name\": \"Nene Example\",\n  \"phone\": \"0700000000\",\n  \"gender\": \"female\"\n}"
+                },
+                "url": "http://localhost:5000/api/register"
+            }
+        },
+        {
+            "name": "Login",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {"key": "Content-Type", "value": "application/json"}
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\"username\": \"patient1\", \"password\": \"password123\"}"
+                },
+                "url": "http://localhost:5000/api/login"
+            }
+        },
+        {
+            "name": "Get Appointments",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {"key": "Authorization", "value": "Bearer {{token}}"}
+                ],
+                "url": "http://localhost:5000/api/appointments"
+            }
+        },
+        {
+            "name": "Book Appointment",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {"key": "Content-Type", "value": "application/json"},
+                    {"key": "Authorization", "value": "Bearer {{token}}"}
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\"appointment_date\": \"2025-06-26 14:30\"}"
+                },
+                "url": "http://localhost:5000/api/appointments"
+            }
+        },
+        {
+            "name": "Approve Appointment",
+            "request": {
+                "method": "PUT",
+                "header": [
+                    {"key": "Content-Type", "value": "application/json"},
+                    {"key": "Authorization", "value": "Bearer {{admin_token}}"}
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\"doctor_id\": 2, \"appointment_date\": \"2025-06-26 14:30\", \"status\": \"approved\", \"notes\": \"Appointment approved by admin\", \"approved_by\": \"admin\"}"
+                },
+                "url": "http://localhost:5000/api/appointments/1/approve"
+            }
+        },
+        {
+            "name": "Get Health Records",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {"key": "Authorization", "value": "Bearer {{token}}"}
+                ],
+                "url": "http://localhost:5000/api/health_records"
+            }
+        },
+        {
+            "name": "Download Health Record PDF",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {"key": "Authorization", "value": "Bearer {{token}}"}
+                ],
+                "url": "http://localhost:5000/api/health_records/1/pdf"
+            }
+        },
+        {
+            "name": "Create Prescription",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {"key": "Content-Type", "value": "application/json"},
+                    {"key": "Authorization", "value": "Bearer {{token}}"}
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\"patient_id\": 1, \"medication\": \"Amoxicillin 500mg\"}"
+                },
+                "url": "http://localhost:5000/api/prescriptions"
+            }
+        },
+        {
+            "name": "Get Prescriptions",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {"key": "Authorization", "value": "Bearer {{token}}"}
+                ],
+                "url": "http://localhost:5000/api/prescriptions"
+            }
+        }
+    ]
+}
