@@ -1,16 +1,14 @@
-from models import db
+from app import db
 
 class Prescription(db.Model):
-    __tablename__ = 'prescriptions'
-    
+    __tablename__ = 'prescription'
+
     id = db.Column(db.Integer, primary_key=True)
-    patient_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    appointment_id = db.Column(db.Integer, db.ForeignKey('appointments.id'), nullable=False)
     doctor_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    medication = db.Column(db.Text, nullable=False)
-    prescribed_at = db.Column(db.DateTime, nullable=False, default=db.func.now())
-    
-    patient = db.relationship('User', foreign_keys=[patient_id], backref='prescriptions_as_patient')
-    doctor = db.relationship('User', foreign_keys=[doctor_id], backref='prescriptions_as_doctor')
-    
-    def __repr__(self):
-        return f'<Prescription {self.id} for Patient {self.patient_id} by Doctor {self.doctor_id}>'
+    patient_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    medications = db.Column(db.Text, nullable=False)
+
+    appointment = db.relationship('Appointment', back_populates='prescriptions')
+    prescribing_doctor = db.relationship('User', back_populates='prescriptions_given', foreign_keys=[doctor_id])
+    receiving_patient = db.relationship('User', back_populates='prescriptions_received', foreign_keys=[patient_id])

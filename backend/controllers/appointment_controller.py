@@ -1,84 +1,149 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from models import db, Appointment, User
-from datetime import datetime
+from app import db
+from models.appointment import Appointment
+from models.user import User
 
-appointment_bp = Blueprint('appointment', __name__)
+appointment_bp = Blueprint('appointment_bp', __name__)
 
-@appointment_bp.route('/appointments', methods=['POST'])
+# ✅ Patient books appointment
+@appointment_bp.route('/book', methods=['POST'])
 @jwt_required()
-def book_appointment():
-    identity = get_jwt_identity()
-    if identity['role'] != 'patient':
-        return jsonify({"error": "Only patients can book appointments"}), 403
-    
-    data = request.get_json()
-    appointment_date = data.get('appointment_date')
-    
-    try:
-        appointment_date = datetime.strptime(appointment_date, '%Y-%m-%d %H:%M')
-    except ValueError:
-        return jsonify({"error": "Invalid date format. Use YYYY-MM-DD HH:MM"}), 400
-    
-    patient = User.query.filter_by(username=identity['username']).first()
-    appointment = Appointment(patient_id=patient.id, appointment_date=appointment_date)
-    db.session.add(appointment)
+def book():
+    usr = get_jwt_identity()
+    if usr['role'] != 'patient':
+        return jsonify({"error": "Only patients can book"}), 403
+
+    data = request.json
+    appt = Appointment(
+        patient_id=usr['id'],
+        date=data['date'],
+        time=data['time'],
+        reason=data['reason']
+    )
+    db.session.add(appt)
     db.session.commit()
-    
-    return jsonify({"message": "Appointment booked", "appointment_id": appointment.id}), 201
+    return jsonify({"message": "Appointment booked", "id": appt.id}), 201
 
-@appointment_bp.route('/appointments', methods=['GET'])
+# ✅ Admin approves and assigns doctor
+@appointment_bp.route('/approve', methods=['POST'])
 @jwt_required()
-def get_appointments():
-    identity = get_jwt_identity()
-    user = User.query.filter_by(username=identity['username']).first()
-    
-    if identity['role'] == 'patient':
-        appointments = Appointment.query.filter_by(patient_id=user.id).all()
-    elif identity['role'] == 'doctor':
-        appointments = Appointment.query.filter_by(doctor_id=user.id).all()
-    elif identity['role'] == 'admin':
-        appointments = Appointment.query.all()
-    else:
-        return jsonify({"error": "Invalid role"}), 403
-    
+def approve():
+    usr = get_jwt_identity()
+    if usr['role'] != 'admin':
+        return jsonify({"error": "Only admin"}), 403
+
+    data = request.json
+    appt = Appointment.query.get(data['appointment_id'])
+    doc = User.query.get(data['doctor_id'])
+
+    if not appt or not doc or doc.role != 'doctor':
+        return jsonify({"error": "Invalid doctor or appointment"}), 400
+
+    appt.doctor_id = doc.id
+    appt.status = 'approved'
+    db.session.commit()
+    return jsonify({"message": "Appointment approved"}), 200
+
+# ✅ Admin reschedules appointment
+@appointment_bp.route('/reschedule', methods=['POST'])
+@jwt_required()
+def reschedule():
+    usr = get_jwt_identity()
+    if usr['role'] != 'admin':
+        return jsonify({"error": "Only admin"}), 403
+
+    data = request.json
+    appt = Appointment.query.get(data['appointment_id'])
+
+    if not appt:
+        return jsonify({"error": "Appointment not found"}), 404
+
+    appt.date = data['new_date']
+    appt.time = data['new_time']
+    appt.status = 'rescheduled'
+    db.session.commit()
+    return jsonify({"message": "Appointment rescheduled"}), 200
+
+# ✅ Admin views all appointments
+@appointment_bp.route('/all', methods=['GET'])
+@jwt_required()
+def all_appointments():
+    usr = get_jwt_identity()
+    if usr['role'] != 'admin':
+        return jsonify({"error": "Only admin"}), 403
+
+    appts = Appointment.query.all()
     return jsonify([
         {
-            'id': appt.id,
-            'patient': appt.patient.username,
-            'doctor': appt.doctor.username if appt.doctor else None,
-            'appointment_date': appt.appointment_date.isoformat(),
-            'status': appt.status
-        } for appt in appointments
+            "id": a.id,
+            "patient_id": a.patient_id,
+            "doctor_id": a.doctor_id,
+            "date": a.date.isoformat(),
+            "time": a.time.isoformat(),
+            "status": a.status,
+            "reason": a.reason
+        } for a in appts
     ]), 200
 
-@appointment_bp.route('/appointments/<int:id>/approve', methods=['PUT'])
+# ✅ Admin views one specific appointment
+@appointment_bp.route('/<int:aid>', methods=['GET'])
 @jwt_required()
-def approve_appointment(id):
-    identity = get_jwt_identity()
-    if identity['role'] != 'admin':
-        return jsonify({"error": "Only admins can approve appointments"}), 403
-    
-    appointment = Appointment.query.get_or_404(id)
-    data = request.get_json()
-    doctor_id = data.get('doctor_id')
-    appointment_date = data.get('appointment_date')
-    
-    if not doctor_id:
-        return jsonify({"error": "Doctor ID required"}), 400
-    
-    if appointment_date:
-        try:
-            appointment.appointment_date = datetime.strptime(appointment_date, '%Y-%m-%d %H:%M')
-        except ValueError:
-            return jsonify({"error": "Invalid date format"}), 400
-    
-    doctor = User.query.get(doctor_id)
-    if not doctor or doctor.role != 'doctor':
-        return jsonify({"error": "Invalid doctor ID"}), 400
-    
-    appointment.doctor_id = doctor_id
-    appointment.status = 'approved'
-    db.session.commit()
-    
-    return jsonify({"message": "Appointment approved"}), 200
+def get_appointment_by_id(aid):
+    usr = get_jwt_identity()
+    if usr['role'] != 'admin':
+        return jsonify({"error": "Only admin"}), 403
+
+    appt = Appointment.query.get(aid)
+    if not appt:
+        return jsonify({"error": "Appointment not found"}), 404
+
+    return jsonify({
+        "id": appt.id,
+        "patient_id": appt.patient_id,
+        "doctor_id": appt.doctor_id,
+        "date": appt.date.isoformat(),
+        "time": appt.time.isoformat(),
+        "status": appt.status,
+        "reason": appt.reason
+    }), 200
+
+# ✅ Patient views own appointments
+@appointment_bp.route('/patient/<int:pid>', methods=['GET'])
+@jwt_required()
+def appointments_by_patient(pid):
+    usr = get_jwt_identity()
+    if usr['role'] != 'patient' or usr['id'] != pid:
+        return jsonify({"error": "Unauthorized"}), 403
+
+    appts = Appointment.query.filter_by(patient_id=pid).all()
+    return jsonify([
+        {
+            "id": a.id,
+            "date": a.date.isoformat(),
+            "time": a.time.isoformat(),
+            "status": a.status,
+            "reason": a.reason,
+            "doctor_id": a.doctor_id
+        } for a in appts
+    ]), 200
+
+# ✅ Doctor views their appointments
+@appointment_bp.route('/doctor/<int:did>', methods=['GET'])
+@jwt_required()
+def appointments_by_doctor(did):
+    usr = get_jwt_identity()
+    if usr['role'] != 'doctor' or usr['id'] != did:
+        return jsonify({"error": "Unauthorized"}), 403
+
+    appts = Appointment.query.filter_by(doctor_id=did).all()
+    return jsonify([
+        {
+            "id": a.id,
+            "patient_id": a.patient_id,
+            "date": a.date.isoformat(),
+            "time": a.time.isoformat(),
+            "status": a.status,
+            "reason": a.reason
+        } for a in appts
+    ]), 200
