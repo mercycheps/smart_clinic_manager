@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Login from "./components/Login";
@@ -8,11 +7,9 @@ import Doctor from "./pages/Doctor";
 import TodayAppointments from "./pages/TodayAppointments";
 import React from "react";
 
-function App() {
-  const handleDoctorSubmit = (data) => {
-    console.log("Submitted Doctor Data:", data);
-  };
 
+
+function App() {
   return (
     <Router>
       <Navbar />
@@ -26,7 +23,9 @@ function App() {
         </Routes>
       </div>
     </Router>
-  );
+  )
+
 }
+
 
 export default App;
