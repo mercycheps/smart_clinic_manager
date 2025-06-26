@@ -1,0 +1,86 @@
+.register-container {
+    background-color: #98FF98; /* Mint color */
+    background-image: url('../../assets/clin.png'); /* Relative path to the image */
+    background-size: cover; /* Ensures the image covers the entire container */
+    background-position: center; /* Centers the image */
+    background-repeat: no-repeat; /* Prevents the image from repeating */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    padding: 32px;
+    max-width: 640px;
+    margin: 32px auto;
+}
+  
+.register-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 24px;
+}
+  
+.register-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+  
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+  
+.form-group label {
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+  
+.form-group input,
+.form-group select,
+.form-group textarea {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}
+  
+.error-message {
+    color: red;
+    font-size: 0.875rem;
+}
+  
+.register-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 16px;
+}
+  
+.register-cancel-button {
+    padding: 8px 16px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    color: #555;
+    background-color: transparent;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+  
+.register-cancel-button:hover {
+    background-color: #f0f0f0;
+}
+  
+.register-submit-button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    background-color: #007bff;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+  
+.register-submit-button:hover {
+    background-color: #0056b3;
+}
+  
+.register-submit-button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
