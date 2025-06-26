@@ -58,6 +58,7 @@ const Register = ({ initialData = {}, isLoading = false }) => {
             <Activity className="icon" />
             <h1 className="header-title">MedPractice Pro</h1>
           </div>
+          
           <nav className="header-nav">
             <Link to="/" className="nav-link">Dashboard</Link>
             <Link to="/doctors" className="nav-link">Doctors</Link>
@@ -77,8 +78,8 @@ const Register = ({ initialData = {}, isLoading = false }) => {
             {initialData.firstName ? 'Edit Doctor' : 'Add New Doctor'}
           </h2>
 
+
           <form onSubmit={handleSubmit(handleRegister)} className="form">
-            {/* Inputs — abbreviated for brevity */}
             <div className="form-grid">
               <div>
                 <label className="form-label">First Name *</label>
@@ -92,7 +93,55 @@ const Register = ({ initialData = {}, isLoading = false }) => {
               </div>
             </div>
 
-            {/* Add other fields like email, phoneNumber, etc. */}
+
+            <div className="form-grid">
+              <div>
+                <label className="form-label">Email *</label>
+                <input type="email" {...register('email', { required: 'Required' })} className="form-input" />
+                {errors.email && <p className="form-error">{errors.email.message}</p>}
+              </div>
+              <div>
+                <label className="form-label">Phone Number</label>
+                <input type="tel" {...register('phoneNumber')} className="form-input" />
+              </div>
+            </div>
+
+            <div className="form-grid">
+              <div>
+                <label className="form-label">Specialty</label>
+                <select {...register('specialty')} className="form-input">
+                  <option value="">-- Select Specialty --</option>
+                  {specialties.map((s) => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="form-label">License Number</label>
+                <input {...register('licenseNumber')} className="form-input" />
+              </div>
+            </div>
+
+            <div className="form-grid">
+              <div>
+                <label className="form-label">Experience (years)</label>
+                <input type="number" {...register('experience')} className="form-input" />
+              </div>
+              <div>
+                <label className="form-label">Education</label>
+                <input {...register('education')} className="form-input" />
+              </div>
+            </div>
+
+            <div>
+              <label className="form-label">Address</label>
+              <input {...register('address')} className="form-input" />
+            </div>
+
+            <div>
+              <label className="form-label">Bio</label>
+              <textarea {...register('bio')} className="form-input" rows={4}></textarea>
+            </div>
 
             <div className="form-actions">
               <button type="button" onClick={() => navigate('/doctors')} className="form-button cancel">
