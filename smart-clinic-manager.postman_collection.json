@@ -1,122 +1,186 @@
 {
-    "info": {
-        "name": "Smart Clinic Manager",
-        "_postman_id": "d8e9f0a1-b2c3-4567-d8e9-f0a1b2c34567",
-        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-    },
-    "item": [
-        {
-            "name": "Register",
-            "request": {
-                "method": "POST",
-                "header": [
-                    {"key": "Content-Type", "value": "application/json"}
-                ],
-                "body": {
-                    "mode": "raw",
-                    "raw": "{\n  \"username\": \"Nene\",\n  \"email\": \"nenee@gmail.com\",\n  \"password\": \"nene123\",\n  \"role\": \"patient\",\n  \"full_name\": \"Nene Example\",\n  \"phone\": \"0700000000\",\n  \"gender\": \"female\"\n}"
-                },
-                "url": "http://localhost:5000/api/register"
-            }
+  "info": {
+    "name": "Smart Clinic Manager",
+    "_postman_id": "a4d5fbb1-6d6f-4fd3-988c-8ecb28d33be2",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Register User",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"full_name\":\"Alice\",\"username\":\"alice\",\"email\":\"alice@example.com\",\"password\":\"pass123\",\"role\":\"patient\"}"
         },
-        {
-            "name": "Login",
-            "request": {
-                "method": "POST",
-                "header": [
-                    {"key": "Content-Type", "value": "application/json"}
-                ],
-                "body": {
-                    "mode": "raw",
-                    "raw": "{\"username\": \"patient1\", \"password\": \"password123\"}"
-                },
-                "url": "http://localhost:5000/api/login"
-            }
-        },
-        {
-            "name": "Get Appointments",
-            "request": {
-                "method": "GET",
-                "header": [
-                    {"key": "Authorization", "value": "Bearer {{token}}"}
-                ],
-                "url": "http://localhost:5000/api/appointments"
-            }
-        },
-        {
-            "name": "Book Appointment",
-            "request": {
-                "method": "POST",
-                "header": [
-                    {"key": "Content-Type", "value": "application/json"},
-                    {"key": "Authorization", "value": "Bearer {{token}}"}
-                ],
-                "body": {
-                    "mode": "raw",
-                    "raw": "{\"appointment_date\": \"2025-06-26 14:30\"}"
-                },
-                "url": "http://localhost:5000/api/appointments"
-            }
-        },
-        {
-            "name": "Approve Appointment",
-            "request": {
-                "method": "PUT",
-                "header": [
-                    {"key": "Content-Type", "value": "application/json"},
-                    {"key": "Authorization", "value": "Bearer {{admin_token}}"}
-                ],
-                "body": {
-                    "mode": "raw",
-                    "raw": "{\"doctor_id\": 2, \"appointment_date\": \"2025-06-26 14:30\", \"status\": \"approved\", \"notes\": \"Appointment approved by admin\", \"approved_by\": \"admin\"}"
-                },
-                "url": "http://localhost:5000/api/appointments/1/approve"
-            }
-        },
-        {
-            "name": "Get Health Records",
-            "request": {
-                "method": "GET",
-                "header": [
-                    {"key": "Authorization", "value": "Bearer {{token}}"}
-                ],
-                "url": "http://localhost:5000/api/health_records"
-            }
-        },
-        {
-            "name": "Download Health Record PDF",
-            "request": {
-                "method": "GET",
-                "header": [
-                    {"key": "Authorization", "value": "Bearer {{token}}"}
-                ],
-                "url": "http://localhost:5000/api/health_records/1/pdf"
-            }
-        },
-        {
-            "name": "Create Prescription",
-            "request": {
-                "method": "POST",
-                "header": [
-                    {"key": "Content-Type", "value": "application/json"},
-                    {"key": "Authorization", "value": "Bearer {{token}}"}
-                ],
-                "body": {
-                    "mode": "raw",
-                    "raw": "{\"patient_id\": 1, \"medication\": \"Amoxicillin 500mg\"}"
-                },
-                "url": "http://localhost:5000/api/prescriptions"
-            }
-        },
-        {
-            "name": "Get Prescriptions",
-            "request": {
-                "method": "GET",
-                "header": [
-                    {"key": "Authorization", "value": "Bearer {{token}}"}
-                ],
-                "url": "http://localhost:5000/api/prescriptions"
-            }
+        "url": {
+          "raw": "http://localhost:5000/api/users/register",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["api", "users", "register"]
         }
-    ]
+      }
+    },
+    {
+      "name": "Login User",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"username\":\"alice\",\"password\":\"pass123\"}"
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/users/login",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["api", "users", "login"]
+        }
+      }
+    },
+    {
+      "name": "Book Appointment",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"patient_id\":1,\"field\":\"cardiology\",\"date\":\"2025-07-01\",\"time\":\"10:30:00\",\"reason\":\"Checkup\"}"
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/appointments/book",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["api", "appointments", "book"]
+        }
+      }
+    },
+    {
+      "name": "Approve Appointment (Admin)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"admin_id\":1,\"appointment_id\":1}"
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/appointments/approve",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["api", "appointments", "approve"]
+        }
+      }
+    },
+    {
+      "name": "Add Lab Results (Lab Tech)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"lab_tech_id\":4,\"appointment_id\":1,\"lab_results\":\"Blood test normal\"}"
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/health_records/add_lab",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["api", "health_records", "add_lab"]
+        }
+      }
+    },
+    {
+      "name": "Assign Prescription (Doctor)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"doctor_id\":2,\"appointment_id\":1,\"medications\":\"Drug A 10mg daily\"}"
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/prescriptions/assign",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["api", "prescriptions", "assign"]
+        }
+      }
+    },
+    {
+      "name": "Get Patient Appointments",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:5000/api/appointments/patient/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["api", "appointments", "patient", "1"]
+        }
+      }
+    },
+    {
+      "name": "Get Health Records",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:5000/api/health_records/patient/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["api", "health_records", "patient", "1"]
+        }
+      }
+    },
+    {
+      "name": "Get Patient Prescriptions",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:5000/api/prescriptions/patient/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["api", "prescriptions", "patient", "1"]
+        }
+      }
+    }
+  ]
 }

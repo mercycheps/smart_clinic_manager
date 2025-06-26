@@ -1,17 +1,23 @@
-from models import db
-from datetime import datetime
+from app import db
+from datetime import time, date
 
 class Appointment(db.Model):
     __tablename__ = 'appointments'
-    
+
     id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.Date, nullable=False)
+    time = db.Column(db.Time, nullable=False)
+
     patient_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     doctor_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
-    appointment_date = db.Column(db.DateTime, nullable=False)
-    status = db.Column(db.String(20), nullable=False, default='pending')
+
     
-    patient = db.relationship('User', foreign_keys=[patient_id], backref='appointments_as_patient')
-    doctor = db.relationship('User', foreign_keys=[doctor_id], backref='appointments_as_doctor')
-    
-    def __repr__(self):
-        return f'<Appointment {self.id} for Patient {self.patient_id} on {self.appointment_date}>'
+
+    reason = db.Column(db.String(255), nullable=True)
+    status = db.Column(db.String(50), default='pending')  # pending, approved, rescheduled, lab done, etc.
+
+    # Relationships
+    patient = db.relationship('User', foreign_keys=[patient_id], back_populates='appointments')
+    doctor = db.relationship('User', foreign_keys=[doctor_id], back_populates='assigned_appointments')
+    health_record = db.relationship('HealthRecord', back_populates='appointment', uselist=False)
+    prescriptions = db.relationship('Prescription', back_populates='appointment', uselist=False)
