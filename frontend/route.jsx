@@ -1,63 +1,37 @@
-import React, { Suspense } from "react";
+// route.jsx (in root of /frontend)
+
+import React from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import RedirectLanding from "./src/Pages/RedirectLanding"; // Correct import for RedirectLanding
-import Login from "./src/Pages/Login"; // Correct import for Login
+
+// Pages
+import Login from "./src/Pages/Login";
+import Register from "./src/Pages/Register";
 import Doctor from "./src/Pages/Doctor";
+import AdminDashboard from "./src/Pages/AdminDashboard";
+import PatientsRecords from "./src/Pages/PatientsRecords";
 import LabTech from "./src/Pages/LabTech";
 
-// Lazy-loaded components
-const AdminDashboard = React.lazy(() => import("./src/Pages/AdminDashboard"));
-const TodayAppointments = React.lazy(() => import("./src/components/TodayAppointments"));
-const PatientsRecords = React.lazy(() => import("./src/Pages/PatientsRecords"));
+// Components
+import BookAppointment from "./src/components/BookAppointmentForm";
+import TodayAppointments from "./src/components/TodayAppointments";
 
 const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <RedirectLanding />, // Redirect based on user role
-  },
-  {
-    path: "/login",
-    element: <Login />, // Login page
-  },
-  {
-    path: "/doctor",
-    element: <Doctor />, // Doctor dashboard
-  },
-  {
-    path: "/lab-tech",
-    element: <LabTech />, // Lab technician dashboard
-  },
-  {
-    path: "/AdminDashboard",
-    element: (
-      <Suspense fallback={<div>Loading Admin Dashboard...</div>}>
-        <AdminDashboard />
-      </Suspense>
-    ),
-  },
-  {
-    path: "/patient",
-    element: <div>Patient Dashboard (coming soon)</div>, // Placeholder for Patient Dashboard
-  },
-  {
-    path: "/appointments/today",
-    element: (
-      <Suspense fallback={<div>Loading Today's Appointments...</div>}>
-        <TodayAppointments />
-      </Suspense>
-    ),
-  },
-  {
-    path: "/records/:patientId",
-    element: (
-      <Suspense fallback={<div>Loading Patient Records...</div>}>
-        <PatientsRecords />
-      </Suspense>
-    ),
-  },
+  { path: "/", element: <Login /> },
+  { path: "/login", element: <Login /> },
+  { path: "/register", element: <Register /> },
+  { path: "/doctor", element: <Doctor /> },
+  { path: "/lab-tech", element: <LabTech /> },
+  { path: "/admin-dashboard", element: <AdminDashboard /> },
+  { path: "/book-appointment", element: <BookAppointment /> },
+  { path: "/appointments/today", element: <TodayAppointments /> },
+  { path: "/records/:patientId", element: <PatientsRecords /> },
   {
     path: "*",
-    element: <div>404 - Page Not Found</div>, // Catch-all route for undefined paths
+    element: (
+      <div className="text-center p-6 text-red-500 text-lg">
+        404 - Page Not Found
+      </div>
+    ),
   },
 ]);
 
