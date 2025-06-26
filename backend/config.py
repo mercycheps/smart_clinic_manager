@@ -5,7 +5,7 @@ class Config:
     JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'supersecret123')
 
 class ProductionConfig(Config):
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URI', 'postgresql://postgres:nene@localhost:5432/smart_clinic_db')
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URI', 'postgresql://postgres:@localhost:5432/smart_clinic_db')
 
 app_config = {
     'production': ProductionConfig
