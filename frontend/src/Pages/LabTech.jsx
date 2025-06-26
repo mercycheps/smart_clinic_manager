@@ -6,17 +6,31 @@ const LabTech = () => {
   const [labTests, setLabTests] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetch("/api/lab-tests")
-      .then((res) => res.json())
+  const fetchLabTests = () => {
+    const token = localStorage.getItem("access_token");
+
+    fetch("http://localhost:5000/api/lab-tests", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Unauthorized or server error");
+        return res.json();
+      })
       .then((data) => {
         setLabTests(data);
         setLoading(false);
       })
       .catch((err) => {
         console.error("Failed to fetch lab tests:", err);
+        setLabTests([]);
         setLoading(false);
       });
+  };
+
+  useEffect(() => {
+    fetchLabTests();
   }, []);
 
   const getStatusColor = (status) => `status-${status}`;

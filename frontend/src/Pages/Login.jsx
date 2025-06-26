@@ -1,6 +1,6 @@
 import React from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import "../components/styling/login.css";
 
 const Login = () => {
@@ -12,17 +12,39 @@ const Login = () => {
     formState: { errors },
   } = useForm();
 
-  
-  const onSubmit = ({ email, password, role }) => {
-    // You can replace this with real backend validation
+  const onSubmit = async ({ email, password, role }) => {
+    console.log("Form submitted:", { email, password, role });
+
+    // Simulate backend validation (replace with actual API call)
     if (email && password && role) {
-      localStorage.setItem("userRole", role.toLowerCase());
-      navigate("/");
+      try {
+        // Example API call (replace with your backend endpoint)
+        const response = await fetch("/api/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, password, role }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Invalid credentials");
+        }
+
+        const data = await response.json();
+        console.log("Login successful:", data);
+
+        // Store user role and navigate to the appropriate page
+        localStorage.setItem("userRole", role.toLowerCase());
+        navigate(`/${role.toLowerCase()}`);
+      } catch (error) {
+        console.error("Login error:", error);
+        alert("Login failed. Please check your credentials.");
+      }
     } else {
       alert("Please fill all fields correctly.");
     }
   };
-
 
   return (
     <div className="login-container">
@@ -39,7 +61,6 @@ const Login = () => {
           {errors.email && <p className="form-error">{errors.email.message}</p>}
         </div>
 
-
         <div className="form-group">
           <label htmlFor="password" className="form-label">Password</label>
           <input
@@ -51,7 +72,6 @@ const Login = () => {
           {errors.password && <p className="form-error">{errors.password.message}</p>}
         </div>
 
-
         <div className="form-group">
           <label htmlFor="role" className="form-label">Role</label>
           <select
@@ -59,7 +79,6 @@ const Login = () => {
             {...register("role", { required: "Role is required" })}
             className="form-input"
           >
-
             <option value="">Select Role</option>
             <option value="admin">Admin</option>
             <option value="doctor">Doctor</option>
@@ -71,6 +90,11 @@ const Login = () => {
 
         <button type="submit" className="login-button">Login</button>
       </form>
+
+      <div className="login-register-link">
+        <p>Don't have an account?</p>
+        <Link to="/register" className="register-link">Register here</Link>
+      </div>
     </div>
   );
 };
