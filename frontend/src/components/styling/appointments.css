@@ -1,90 +1,75 @@
-.today-appointments-container {
-    padding: 24px;
+.appointments-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin: 20px;
   }
   
-  .today-appointments-title {
-    font-size: 1.25rem; /* Equivalent to text-xl */
-    font-weight: bold;
-    margin-bottom: 16px; /* Equivalent to mb-4 */
+  .card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fff;
   }
   
-  .today-appointments-empty {
-    color: #6b7280; /* Gray color for empty state text */
-  }
-  
-  .today-appointments-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px; /* Equivalent to space-y-2 */
-  }
-  
-  .today-appointments-item {
-    padding: 8px; /* Equivalent to p-2 */
-    border: 1px solid #e5e7eb; /* Light gray border */
-    border-radius: 8px; /* Equivalent to rounded */
-    background-color: white;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Equivalent to shadow-sm */
-  }
-  
-  .today-appointments-item strong {
-    font-weight: bold;
-  }
-  .appointments-table-container {
-    background-color: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  .card-header {
     padding: 16px;
-    overflow-x: auto;
+    border-bottom: 1px solid #eee;
   }
   
-  .appointments-table-title {
-    font-size: 1.125rem; /* Equivalent to text-lg */
-    font-weight: 600; /* Equivalent to font-semibold */
-    margin-bottom: 16px; /* Equivalent to mb-4 */
+  .card-header h3 {
+    margin: 0 0 4px 0;
+    font-size: 18px;
   }
   
-  .appointments-table {
+  .card-body {
+    padding: 16px;
+  }
+  
+  .form label {
+    display: block;
+    margin: 10px 0 5px;
+    font-weight: 500;
+  }
+  
+  .form input, .form select {
     width: 100%;
-    border-collapse: collapse;
-    font-size: 0.875rem; /* Equivalent to text-sm */
-    text-align: left;
+    padding: 8px;
+    margin-bottom: 10px;
   }
   
-  .appointments-table-header {
-    background-color: #f3f4f6; /* Equivalent to bg-gray-100 */
+  .row {
+    display: flex;
+    gap: 10px;
   }
   
-  .appointments-table-header th {
-    padding: 8px 16px; /* Equivalent to px-4 py-2 */
+  .primary-btn {
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 4px;
+    cursor: pointer;
   }
   
-  .appointments-table-row {
-    border-top: 1px solid #e5e7eb; /* Equivalent to border-t */
+  .primary-btn:hover {
+    background-color: #1d4ed8;
   }
   
-  .appointments-table-row td {
-    padding: 8px 16px; /* Equivalent to px-4 py-2 */
+  .appointments-list .appointment {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px;
+    border: 1px solid #eee;
+    border-radius: 6px;
+    margin-bottom: 10px;
   }
   
-  .status-badge {
-    padding: 4px 8px; /* Equivalent to px-2 py-1 */
-    border-radius: 9999px; /* Equivalent to rounded-full */
-    font-size: 0.75rem; /* Equivalent to text-xs */
-    font-weight: 500; /* Equivalent to font-medium */
+  .appointment-time {
+    font-weight: bold;
+    color: #2563eb;
   }
   
-  .status-pending {
-    background-color: #fef3c7; /* Equivalent to bg-yellow-100 */
-    color: #92400e; /* Equivalent to text-yellow-800 */
+  .muted {
+    color: #888;
   }
   
-  .status-completed {
-    background-color: #d1fae5; /* Equivalent to bg-green-100 */
-    color: #065f46; /* Equivalent to text-green-800 */
-  }
-  
-  .appointments-table-empty {
-    text-align: center;
-    padding: 16px;
-    color: #6b7280; /* Equivalent to text-gray-500 */
-  }

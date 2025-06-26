@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import "./styling/appointments.css";
 
 function Appointments() {
   const [schedule, setSchedule] = useState([]);
