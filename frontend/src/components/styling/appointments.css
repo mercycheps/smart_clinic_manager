@@ -1,0 +1,90 @@
+.today-appointments-container {
+    padding: 24px;
+  }
+  
+  .today-appointments-title {
+    font-size: 1.25rem; /* Equivalent to text-xl */
+    font-weight: bold;
+    margin-bottom: 16px; /* Equivalent to mb-4 */
+  }
+  
+  .today-appointments-empty {
+    color: #6b7280; /* Gray color for empty state text */
+  }
+  
+  .today-appointments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px; /* Equivalent to space-y-2 */
+  }
+  
+  .today-appointments-item {
+    padding: 8px; /* Equivalent to p-2 */
+    border: 1px solid #e5e7eb; /* Light gray border */
+    border-radius: 8px; /* Equivalent to rounded */
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Equivalent to shadow-sm */
+  }
+  
+  .today-appointments-item strong {
+    font-weight: bold;
+  }
+  .appointments-table-container {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 16px;
+    overflow-x: auto;
+  }
+  
+  .appointments-table-title {
+    font-size: 1.125rem; /* Equivalent to text-lg */
+    font-weight: 600; /* Equivalent to font-semibold */
+    margin-bottom: 16px; /* Equivalent to mb-4 */
+  }
+  
+  .appointments-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem; /* Equivalent to text-sm */
+    text-align: left;
+  }
+  
+  .appointments-table-header {
+    background-color: #f3f4f6; /* Equivalent to bg-gray-100 */
+  }
+  
+  .appointments-table-header th {
+    padding: 8px 16px; /* Equivalent to px-4 py-2 */
+  }
+  
+  .appointments-table-row {
+    border-top: 1px solid #e5e7eb; /* Equivalent to border-t */
+  }
+  
+  .appointments-table-row td {
+    padding: 8px 16px; /* Equivalent to px-4 py-2 */
+  }
+  
+  .status-badge {
+    padding: 4px 8px; /* Equivalent to px-2 py-1 */
+    border-radius: 9999px; /* Equivalent to rounded-full */
+    font-size: 0.75rem; /* Equivalent to text-xs */
+    font-weight: 500; /* Equivalent to font-medium */
+  }
+  
+  .status-pending {
+    background-color: #fef3c7; /* Equivalent to bg-yellow-100 */
+    color: #92400e; /* Equivalent to text-yellow-800 */
+  }
+  
+  .status-completed {
+    background-color: #d1fae5; /* Equivalent to bg-green-100 */
+    color: #065f46; /* Equivalent to text-green-800 */
+  }
+  
+  .appointments-table-empty {
+    text-align: center;
+    padding: 16px;
+    color: #6b7280; /* Equivalent to text-gray-500 */
+  }
