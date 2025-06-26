@@ -1,80 +1,104 @@
 import { useEffect, useState } from "react";
-
-export default function PatientDashboard() {
-  const [testResults, setTestResults] = useState([]);
-  const [labTests, setLabTests] = useState([]);
-  const [selectedTestId, setSelectedTestId] = useState("");
+import BookAppointmentForm from "../components/BookAppointmentForm";
 
 
-  // fetching test results and available tests
+const PatientDashboard = () => {
+  const [appointments, setAppointments] = useState([]);
+  const [records, setRecords] = useState([]);
+  const [prescriptions, setPrescriptions] = useState([]);
+  const [labResults, setLabResults] = useState([]);
+
+
   useEffect(() => {
-
-    // Flask API
-    setTestResults([
-      { id: 1, testName: "Blood Test", result: "Normal", date: "2025-06-20" },
-      { id: 2, testName: "X-Ray", result: "No issues", date: "2025-06-21" },
-    ]);
+    // Fetch from your Flask API using your token
+    fetch("/api/patient/appointments")
+      .then((res) => res.json())
+      .then(setAppointments);
 
 
-    setLabTests([
-      { id: 1, name: "Blood Test" },
-      { id: 2, name: "X-Ray" },
-      { id: 3, name: "MRI" },
-    ]);
+    fetch("/api/patient/records")
+      .then((res) => res.json())
+      .then(setRecords);
+
+
+    fetch("/api/patient/prescriptions")
+      .then((res) => res.json())
+      .then(setPrescriptions);
+
+    fetch("/api/patient/lab-results")
+      .then((res) => res.json())
+      .then(setLabResults);
   }, []);
 
-
-  const handleBookTest = (e) => {
-    e.preventDefault();
-    if (!selectedTestId) return;
-
-
-    const booked = labTests.find((t) => t.id === parseInt(selectedTestId));
-    alert(`Booked: ${booked.name}`);
-    setSelectedTestId("");
+  const handleAppointmentSubmit = (values) => {
+    fetch("/api/appointments", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        // Include JWT if needed
+      },
+      body: JSON.stringify(values),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        alert("Appointment request sent.");
+        setAppointments([...appointments, data]);
+      });
   };
 
-
   return (
-    <div className="max-w-3xl mx-auto mt-6">
-      <h2 className="text-2xl font-bold mb-4">Your Test Results</h2>
-      <ul className="space-y-3">
-        {testResults.map((result) => (
-          <li
-            key={result.id}
-            className="border p-3 rounded bg-white shadow flex justify-between"
-          >
-            <div>
-              <p className="font-semibold">{result.testName}</p>
-              <p className="text-gray-600 text-sm">{result.result}</p>
-            </div>
-            <span className="text-sm text-gray-500">{result.date}</span>
-          </li>
-        ))}
-      </ul>
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-6">Patient Dashboard</h1>
 
-      <h3 className="text-xl font-semibold mt-8 mb-2">Book a Lab Test</h3>
-      <form onSubmit={handleBookTest} className="flex gap-2">
-        <select
-          value={selectedTestId}
-          onChange={(e) => setSelectedTestId(e.target.value)}
-          className="border p-2 rounded w-full"
-        >
-          <option value="">Select a test</option>
-          {labTests.map((test) => (
-            <option key={test.id} value={test.id}>
-              {test.name}
-            </option>
-            
+      <section className="mb-10">
+        <BookAppointmentForm onSubmit={handleAppointmentSubmit} />
+      </section>
+
+      <section className="mb-10">
+        <h2 className="text-xl font-semibold mb-2">Scheduled Appointments</h2>
+        <ul className="list-disc pl-6">
+          {appointments.map((appt) => (
+            <li key={appt.id}>
+              {appt.date} at {appt.time} - {appt.status}
+            </li>
           ))}
-        </select>
-        <button
-          type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded"
-        >
-          Book
-        </button>
-      </form>
+        </ul>
+      </section>
+
+      <section className="mb-10">
+        <h2 className="text-xl font-semibold mb-2">Health Records</h2>
+        <ul className="list-disc pl-6">
+          {records.map((record) => (
+            <li key={record.id}>{record.description} (added: {record.date})</li>
+          ))}
+        </ul>
+      </section>
+
+
+      <section className="mb-10">
+        <h2 className="text-xl font-semibold mb-2">Prescriptions</h2>
+        <ul className="list-disc pl-6">
+          {prescriptions.map((prescription) => (
+            <li key={prescription.id}>
+              {prescription.medicine} - {prescription.instructions}
+            </li>
+          ))}
+        </ul>
+      </section>
+
+
+      <section>
+        <h2 className="text-xl font-semibold mb-2">Lab Results</h2>
+        <ul className="list-disc pl-6">
+          {labResults.map((result) => (
+            <li key={result.id}>
+              {result.testName}: {result.result} ({result.date})
+            </li>
+          ))}
+        </ul>
+      </section>
     </div>
   );
-}
+};
+
+export default PatientDashboard;
