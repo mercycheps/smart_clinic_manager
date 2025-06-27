@@ -1,4 +1,4 @@
-from models import db
+from backend.models import db
 
 class HealthRecord(db.Model):
     __tablename__ = 'health_records'

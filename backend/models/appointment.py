@@ -1,4 +1,4 @@
-from models import db
+from backend.models import db
 from datetime import datetime
 
 class Appointment(db.Model):
