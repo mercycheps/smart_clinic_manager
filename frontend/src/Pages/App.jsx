@@ -1,25 +1,10 @@
+// src/Pages/App.jsx
 
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
- import Navbar from "./components/Navbar";
-import Login from "./components/Login";
-import Register from "./components/Register";
-import PatientDashboard from "./PatientDashboard";
+import React from "react";
+import AppRouter from "../../route"; // ← two dots up to root level
 
-function App() {
-  return (
-    <Router>
-      <Navbar />
-      <div className="p-4">
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/dashboard/patient" element={<PatientDashboard />} />
-        </Routes>
-      </div>
-    </Router>
-
-  );
-}
-
+const App = () => {
+  return <AppRouter />;
+};
 
 export default App;
