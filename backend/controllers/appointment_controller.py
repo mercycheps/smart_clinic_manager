@@ -15,23 +15,38 @@ def book_appointment():
     data = request.get_json()
     appointment_date = data.get('appointment_date')
     
+    if not appointment_date:
+        return jsonify({"error": "Appointment date is required"}), 400
+    
     try:
         appointment_date = datetime.strptime(appointment_date, '%Y-%m-%d %H:%M')
     except ValueError:
         return jsonify({"error": "Invalid date format. Use YYYY-MM-DD HH:MM"}), 400
     
     patient = User.query.filter_by(username=identity['username']).first()
-    appointment = Appointment(patient_id=patient.id, appointment_date=appointment_date)
+    if not patient:
+        return jsonify({"error": "Patient not found"}), 404
+    
+    appointment = Appointment(
+        patient_id=patient.id,
+        appointment_date=appointment_date,
+        status='pending'
+    )
     db.session.add(appointment)
     db.session.commit()
     
-    return jsonify({"message": "Appointment booked", "appointment_id": appointment.id}), 201
+    return jsonify({
+        "message": "Appointment booked successfully",
+        "appointment_id": appointment.id
+    }), 201
 
 @appointment_bp.route('/appointments', methods=['GET'])
 @jwt_required()
 def get_appointments():
     identity = get_jwt_identity()
     user = User.query.filter_by(username=identity['username']).first()
+    if not user:
+        return jsonify({"error": "User not found"}), 404
     
     if identity['role'] == 'patient':
         appointments = Appointment.query.filter_by(patient_id=user.id).all()
@@ -45,7 +60,7 @@ def get_appointments():
     return jsonify([
         {
             'id': appt.id,
-            'patient': appt.patient.username,
+            'patient': appt.patient.username if appt.patient else None,
             'doctor': appt.doctor.username if appt.doctor else None,
             'appointment_date': appt.appointment_date.isoformat(),
             'status': appt.status
@@ -65,20 +80,20 @@ def approve_appointment(id):
     appointment_date = data.get('appointment_date')
     
     if not doctor_id:
-        return jsonify({"error": "Doctor ID required"}), 400
-    
-    if appointment_date:
-        try:
-            appointment.appointment_date = datetime.strptime(appointment_date, '%Y-%m-%d %H:%M')
-        except ValueError:
-            return jsonify({"error": "Invalid date format"}), 400
+        return jsonify({"error": "Doctor ID is required"}), 400
     
     doctor = User.query.get(doctor_id)
     if not doctor or doctor.role != 'doctor':
         return jsonify({"error": "Invalid doctor ID"}), 400
     
+    if appointment_date:
+        try:
+            appointment.appointment_date = datetime.strptime(appointment_date, '%Y-%m-%d %H:%M')
+        except ValueError:
+            return jsonify({"error": "Invalid date format. Use YYYY-MM-DD HH:MM"}), 400
+    
     appointment.doctor_id = doctor_id
     appointment.status = 'approved'
     db.session.commit()
     
-    return jsonify({"message": "Appointment approved"}), 200
+    return jsonify({"message": "Appointment approved successfully"}), 200
