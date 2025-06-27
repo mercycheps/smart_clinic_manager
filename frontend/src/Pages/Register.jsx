@@ -1,159 +1,115 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Activity } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import "../components/styling/register.css";
 
-const Register = ({ initialData = {}, isLoading = false }) => {
+const Register = () => {
   const navigate = useNavigate();
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({
-    defaultValues: {
-      firstName: initialData.firstName || '',
-      lastName: initialData.lastName || '',
-      email: initialData.email || '',
-      phoneNumber: initialData.phoneNumber || '',
-      specialty: initialData.specialty || '',
-      licenseNumber: initialData.licenseNumber || '',
-      experience: initialData.experience || '',
-      education: initialData.education || '',
-      address: initialData.address || '',
-      bio: initialData.bio || '',
-    },
-  });
-
-  const specialties = [
-    'Cardiology', 'Dermatology', 'Neurology', 'Oncology',
-    'Pediatrics', 'Psychiatry', 'Radiology', 'Surgery',
-  ];
+  const { register, handleSubmit, formState: { errors } } = useForm();
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleRegister = async (data) => {
+    setError('');
+    setLoading(true);
     try {
-      const response = await fetch("/api/doctors", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+      const response = await axios.post('/api/doctors', {
+        email: data.email,
+        username: data.username,
+        password: data.password,
+        fullName: data.fullName,
+        phone: data.phone,
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to register doctor");
-      }
-
-      navigate("/doctors");
+      alert(response.data.message);
+      navigate('/login');
     } catch (error) {
-      console.error("Registration error:", error);
-      alert("Error registering doctor");
+      console.error('Registration error:', error);
+      setError(error.response?.data?.error || 'Failed to register doctor');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="register-container">
-      <header className="register-header">
-        <div className="header-content">
-          <div className="header-left">
-            <Activity className="icon" />
-            <h1 className="header-title">MedPractice Pro</h1>
-          </div>
-          
-          <nav className="header-nav">
-            <Link to="/" className="nav-link">Dashboard</Link>
-            <Link to="/doctors" className="nav-link">Doctors</Link>
-            <Link to="/register" className="nav-link active">Add Doctor</Link>
-          </nav>
+      <h2 className="register-title">Register Doctor</h2>
+      {error && <p className="text-red-500 mb-4">{error}</p>}
+      <form onSubmit={handleSubmit(handleRegister)} className="register-form">
+        <div className="form-group">
+          <label htmlFor="email" className="form-label">Email</label>
+          <input
+            id="email"
+            type="email"
+            {...register('email', {
+              required: 'Email is required',
+              pattern: { value: /^\S+@\S+$/i, message: 'Invalid email format' }
+            })}
+            className="form-input"
+          />
+          {errors.email && <p className="form-error">{errors.email.message}</p>}
         </div>
-      </header>
 
-      <div className="register-content">
-        <Link to="/doctors" className="back-link">
-          <ArrowLeft className="back-icon" />
-          Back to Doctors
-        </Link>
-
-        <div className="form-container">
-          <h2 className="form-title">
-            {initialData.firstName ? 'Edit Doctor' : 'Add New Doctor'}
-          </h2>
-
-
-          <form onSubmit={handleSubmit(handleRegister)} className="form">
-            <div className="form-grid">
-              <div>
-                <label className="form-label">First Name *</label>
-                <input {...register('firstName', { required: 'Required' })} className="form-input" />
-                {errors.firstName && <p className="form-error">{errors.firstName.message}</p>}
-              </div>
-              <div>
-                <label className="form-label">Last Name *</label>
-                <input {...register('lastName', { required: 'Required' })} className="form-input" />
-                {errors.lastName && <p className="form-error">{errors.lastName.message}</p>}
-              </div>
-            </div>
-
-
-            <div className="form-grid">
-              <div>
-                <label className="form-label">Email *</label>
-                <input type="email" {...register('email', { required: 'Required' })} className="form-input" />
-                {errors.email && <p className="form-error">{errors.email.message}</p>}
-              </div>
-              <div>
-                <label className="form-label">Phone Number</label>
-                <input type="tel" {...register('phoneNumber')} className="form-input" />
-              </div>
-            </div>
-
-            <div className="form-grid">
-              <div>
-                <label className="form-label">Specialty</label>
-                <select {...register('specialty')} className="form-input">
-                  <option value="">-- Select Specialty --</option>
-                  {specialties.map((s) => (
-                    <option key={s} value={s}>{s}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="form-label">License Number</label>
-                <input {...register('licenseNumber')} className="form-input" />
-              </div>
-            </div>
-
-            <div className="form-grid">
-              <div>
-                <label className="form-label">Experience (years)</label>
-                <input type="number" {...register('experience')} className="form-input" />
-              </div>
-              <div>
-                <label className="form-label">Education</label>
-                <input {...register('education')} className="form-input" />
-              </div>
-            </div>
-
-            <div>
-              <label className="form-label">Address</label>
-              <input {...register('address')} className="form-input" />
-            </div>
-
-            <div>
-              <label className="form-label">Bio</label>
-              <textarea {...register('bio')} className="form-input" rows={4}></textarea>
-            </div>
-
-            <div className="form-actions">
-              <button type="button" onClick={() => navigate('/doctors')} className="form-button cancel">
-                Cancel
-              </button>
-              <button type="submit" disabled={isLoading} className="form-button submit">
-                {isLoading ? 'Saving...' : initialData.firstName ? 'Update Doctor' : 'Add Doctor'}
-              </button>
-            </div>
-          </form>
+        <div className="form-group">
+          <label htmlFor="username" className="form-label">Username</label>
+          <input
+            id="username"
+            type="text"
+            {...register('username', {
+              required: 'Username is required',
+              minLength: { value: 3, message: 'Username must be at least 3 characters' }
+            })}
+            className="form-input"
+          />
+          {errors.username && <p className="form-error">{errors.username.message}</p>}
         </div>
-      </div>
+
+        <div className="form-group">
+          <label htmlFor="password" className="form-label">Password</label>
+          <input
+            id="password"
+            type="password"
+            {...register('password', {
+              required: 'Password is required',
+              minLength: { value: 6, message: 'Password must be at least 6 characters' }
+            })}
+            className="form-input"
+          />
+          {errors.password && <p className="form-error">{errors.password.message}</p>}
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="fullName" className="form-label">Full Name (Optional)</label>
+          <input
+            id="fullName"
+            type="text"
+            {...register('fullName')}
+            className="form-input"
+          />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="phone" className="form-label">Phone (Optional)</label>
+          <input
+            id="phone"
+            type="text"
+            {...register('phone', {
+              pattern: { value: /^\+?\d{10,15}$/, message: 'Invalid phone number format' }
+            })}
+            className="form-input"
+          />
+          {errors.phone && <p className="form-error">{errors.phone.message}</p>}
+        </div>
+
+        <button type="submit" className="register-button" disabled={loading}>
+          {loading ? 'Registering...' : 'Register'}
+        </button>
+      </form>
     </div>
   );
 };

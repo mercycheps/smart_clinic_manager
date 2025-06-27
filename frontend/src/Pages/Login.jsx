@@ -1,48 +1,54 @@
-import React from "react";
-import { useForm } from "react-hook-form";
-import { useNavigate, Link } from "react-router-dom";
+// src/Pages/Login.jsx
+import React from 'react';
+import { useForm } from 'react-hook-form';
+import { useNavigate, Link } from 'react-router-dom';
 import "../components/styling/login.css";
 
 const Login = () => {
   const navigate = useNavigate();
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
+  const { register, handleSubmit, formState: { errors } } = useForm();
 
   const onSubmit = async ({ email, password, role }) => {
     console.log("Form submitted:", { email, password, role });
 
-    // Simulate backend validation (replace with actual API call)
-    if (email && password && role) {
-      try {
-        // Example API call (replace with your backend endpoint)
-        const response = await fetch("/api/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, password, role }),
-        });
+    try {
+      const response = await fetch("/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password, role }),
+      });
 
-        if (!response.ok) {
-          throw new Error("Invalid credentials");
-        }
-
-        const data = await response.json();
-        console.log("Login successful:", data);
-
-        // Store user role and navigate to the appropriate page
-        localStorage.setItem("userRole", role.toLowerCase());
-        navigate(`/${role.toLowerCase()}`);
-      } catch (error) {
-        console.error("Login error:", error);
-        alert("Login failed. Please check your credentials.");
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
       }
-    } else {
-      alert("Please fill all fields correctly.");
+
+      const data = await response.json();
+      console.log("Login successful:", data);
+      localStorage.setItem("token", data.access_token); // Store JWT for PatientDashboard
+      localStorage.setItem("userRole", role.toLowerCase());
+
+      // Navigate based on role
+      switch (role.toLowerCase()) {
+        case "patient":
+          navigate("/patients-dashboard");
+          break;
+        case "admin":
+          navigate("/admin-dashboard");
+          break;
+        case "doctor":
+          navigate("/doctor");
+          break;
+        case "labtech":
+          navigate("/lab-tech");
+          break;
+        default:
+          navigate("/login");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      alert("Login failed. Please check your credentials.");
     }
   };
 

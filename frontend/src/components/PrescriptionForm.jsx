@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Pill, PlusCircle, User, Calendar, Search } from "lucide-react";
+import axios from "axios";
+import { Pill, PlusCircle, Search } from "lucide-react";
 import "./prescriptions.css";
 
 const PrescriptionManager = () => {
@@ -11,60 +12,76 @@ const PrescriptionManager = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [loading, setLoading] = useState(false);
-  const [role, setRole] = useState("doctor"); // Assume role, replace with auth logic.
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const role = localStorage.getItem("userRole") || "patient";
 
   // Fetch prescriptions from backend
-  const fetchPrescriptions = () => {
-    fetch("/prescriptions", {
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-    })
-      .then((res) => res.json())
-      .then((data) => setPrescriptions(data))
-      .catch((err) => console.error("Fetch error:", err));
+  const fetchPrescriptions = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const response = await axios.get("/api/prescriptions", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      setPrescriptions(response.data);
+    } catch (err) {
+      console.error("Fetch error:", err);
+      setError("Failed to load prescriptions. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     fetchPrescriptions();
   }, []);
 
-  const handleCreate = (e) => {
+  const handleCreate = async (e) => {
     e.preventDefault();
+    setError("");
+    setSuccess("");
+
     if (!patientId || !medication || !dosage || !frequency) {
-      alert("Please fill all fields");
+      setError("Please fill all fields");
       return;
     }
 
     setLoading(true);
-    fetch("/prescriptions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({
-        patient_id: patientId,
-        medication: `${medication};${dosage};${frequency}`,
-      }),
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to create");
-        return res.json();
-      })
-      .then(() => {
-        setLoading(false);
-        setPatientId("");
-        setMedication("");
-        setDosage("");
-        setFrequency("");
-        fetchPrescriptions();
-      })
-      .catch((err) => {
-        console.error("Error:", err);
-        setLoading(false);
-      });
+    try {
+      const response = await axios.post(
+        "/api/prescriptions",
+        {
+          patient_id: patientId,
+          medication,
+          dosage,
+          frequency,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      setSuccess(`Prescription created successfully! ID: ${response.data.prescription_id}`);
+      setPatientId("");
+      setMedication("");
+      setDosage("");
+      setFrequency("");
+      fetchPrescriptions();
+    } catch (err) {
+      console.error("Error:", err);
+      setError(err.response?.data?.error || "Failed to create prescription");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const filtered = prescriptions.filter((p) => {
-    const str = `${p.patient} ${p.medication}`.toLowerCase();
+    const str = `${p.patient} ${p.medication} ${p.dosage} ${p.frequency}`.toLowerCase();
     const matchSearch = str.includes(searchTerm.toLowerCase());
     const matchFilter = filterStatus === "all" || p.status === filterStatus;
     return matchSearch && matchFilter;
@@ -81,7 +98,7 @@ const PrescriptionManager = () => {
           </div>
         </div>
         <span className="role-badge">
-          {role === "doctor" ? "Doctor Portal" : "Patient Portal"}
+          {role === "doctor" ? "Doctor Portal" : role === "patient" ? "Patient Portal" : "Admin Portal"}
         </span>
       </header>
 
@@ -124,6 +141,8 @@ const PrescriptionManager = () => {
               <button type="submit" disabled={loading}>
                 {loading ? "Creating..." : "Create Prescription"}
               </button>
+              {error && <p className="text-red-500 mt-2">{error}</p>}
+              {success && <p className="text-green-500 mt-2">{success}</p>}
             </form>
           </section>
         )}
@@ -151,13 +170,17 @@ const PrescriptionManager = () => {
           </div>
 
           <div className="prescription-items">
-            {filtered.length === 0 ? (
+            {loading ? (
+              <p>Loading...</p>
+            ) : filtered.length === 0 ? (
               <p>No prescriptions found</p>
             ) : (
               filtered.map((p) => (
                 <div key={p.id} className="prescription-card">
                   <h3>{p.medication}</h3>
                   <p>Patient: {p.patient} (ID: {p.patient_id})</p>
+                  <p>Dosage: {p.dosage}</p>
+                  <p>Frequency: {p.frequency}</p>
                   <p>Date: {new Date(p.prescribed_at).toLocaleDateString()}</p>
                   <p>Status: <span className={`badge ${p.status}`}>{p.status}</span></p>
                   <p>Doctor: {p.doctor}</p>
