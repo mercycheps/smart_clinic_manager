@@ -1,27 +1,32 @@
 import React from "react";
+import "./appointments.css"; // Import the plain CSS file
 
 const AppointmentsTable = ({ appointments = [] }) => {
   return (
-    <div className="bg-white rounded-xl shadow-md p-4 overflow-x-auto">
-      <h3 className="text-lg font-semibold mb-4">Today's Appointments</h3>
-      <table className="min-w-full text-sm text-left">
+    <div className="appointments-table-container">
+      <h3 className="appointments-table-title">Today's Appointments</h3>
+      <table className="appointments-table">
         <thead>
-          <tr className="bg-gray-100">
-            <th className="px-4 py-2">Patient</th>
-            <th className="px-4 py-2">Time</th>
-            <th className="px-4 py-2">Reason</th>
-            <th className="px-4 py-2">Status</th>
+          <tr className="appointments-table-header">
+            <th>Patient</th>
+            <th>Time</th>
+            <th>Reason</th>
+            <th>Status</th>
           </tr>
         </thead>
         <tbody>
           {appointments.length > 0 ? (
             appointments.map((appt, index) => (
-              <tr key={index} className="border-t">
-                <td className="px-4 py-2">{appt.patient}</td>
-                <td className="px-4 py-2">{appt.time}</td>
-                <td className="px-4 py-2">{appt.reason}</td>
-                <td className="px-4 py-2">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${appt.status === "pending" ? "bg-yellow-100 text-yellow-800" : "bg-green-100 text-green-800"}`}>
+              <tr key={index} className="appointments-table-row">
+                <td>{appt.patient}</td>
+                <td>{appt.time}</td>
+                <td>{appt.reason}</td>
+                <td>
+                  <span
+                    className={`status-badge ${
+                      appt.status === "pending" ? "status-pending" : "status-completed"
+                    }`}
+                  >
                     {appt.status}
                   </span>
                 </td>
@@ -29,7 +34,7 @@ const AppointmentsTable = ({ appointments = [] }) => {
             ))
           ) : (
             <tr>
-              <td colSpan="4" className="text-center py-4 text-gray-500">
+              <td colSpan="4" className="appointments-table-empty">
                 No appointments scheduled today.
               </td>
             </tr>
