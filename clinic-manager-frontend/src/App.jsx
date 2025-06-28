@@ -1,26 +1,27 @@
-import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import Register from "./components/Register";
-import Login from "./components/Login";
-import PatientDashboard from "./components/PatientDashboard";
-import DoctorDashboard from "./components/DoctorDashboard";
-import LabTechDashboard from "./components/LabTechDashboard";
-import AdminDashboard from "./components/AdminDashboard";
+// src/App.jsx
 
-function App() {
+import React from 'react'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import Register from './components/Register'
+import Login from './components/Login'
+import PatientDashboard from './components/dashboards/PatientDashboard'
+import DoctorDashboard from './components/dashboards/DoctorDashboard'
+import LabtechDashboard from './components/dashboards/LabtechDashboard'
+import AdminDashboard from './components/dashboards/AdminDashboard'
+
+const App = () => {
   return (
-    <Router>
+    <BrowserRouter>
       <Routes>
         <Route path="/" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route path="/patient-dashboard" element={<PatientDashboard />} />
         <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
-        <Route path="/labtech-dashboard" element={<LabTechDashboard />} />
+        <Route path="/labtech-dashboard" element={<LabtechDashboard />} />
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
-        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
-    </Router>
-  );
+    </BrowserRouter>
+  )
 }
 
-export default App;
+export default App

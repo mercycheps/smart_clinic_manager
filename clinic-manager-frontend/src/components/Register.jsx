@@ -1,71 +1,85 @@
 // src/components/Register.jsx
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import './Dashboard.css';
 
-function Register() {
-  const [form, setForm] = useState({
-    full_name: '',
-    email: '',
+import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
+
+const Register = () => {
+  const [formData, setFormData] = useState({
     username: '',
-    phone_number: '',
     password: '',
-    confirm_password: ''
-  });
+    full_name: '',
+    role: 'patient'
+  })
 
-  const [errorMsg, setErrorMsg] = useState('');
-  const [successMsg, setSuccessMsg] = useState('');
-  const navigate = useNavigate();
+  const [message, setMessage] = useState('')
+  const navigate = useNavigate()
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+    setFormData({ ...formData, [e.target.name]: e.target.value })
+  }
 
-  const handleRegister = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    try {
+      const res = await axios.post('http://localhost:5000/auth/register', formData)
+      setMessage(res.data.msg)
 
-    if (form.password !== form.confirm_password) {
-      setErrorMsg("Passwords do not match.");
-      return;
+      // Redirect based on role
+      setTimeout(() => {
+        switch (formData.role) {
+          case 'patient':
+            navigate('/patient-dashboard')
+            break
+          case 'doctor':
+            navigate('/doctor-dashboard')
+            break
+          case 'labtech':
+            navigate('/labtech-dashboard')
+            break
+          case 'admin':
+            navigate('/admin-dashboard')
+            break
+          default:
+            break
+        }
+      }, 1000)
+
+    } catch (err) {
+      setMessage(err.response?.data?.msg || 'Registration failed')
     }
-
-    const res = await fetch('http://localhost:5000/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form)
-    });
-
-    const data = await res.json();
-
-    if (res.ok) {
-      setSuccessMsg('Registration successful! Redirecting to login...');
-      setTimeout(() => navigate('/login'), 2000);
-    } else {
-      setErrorMsg(data.message || 'Registration failed.');
-    }
-  };
+  }
 
   return (
-    <div className="auth-container">
-      <h2>Register as Patient</h2>
-      <form onSubmit={handleRegister}>
-        <input type="text" name="full_name" placeholder="Full Name" value={form.full_name} onChange={handleChange} required />
-        <input type="email" name="email" placeholder="Email" value={form.email} onChange={handleChange} required />
-        <input type="text" name="phone_number" placeholder="Phone Number" value={form.phone_number} onChange={handleChange} required />
-        <input type="text" name="username" placeholder="Username" value={form.username} onChange={handleChange} required />
-        <input type="password" name="password" placeholder="Password" value={form.password} onChange={handleChange} required />
-        <input type="password" name="confirm_password" placeholder="Confirm Password" value={form.confirm_password} onChange={handleChange} required />
+    <div className="container">
+      <h2>Clinic Manager Registration</h2>
+      <form onSubmit={handleSubmit}>
+        <label>Full Name</label>
+        <input type="text" name="full_name" required onChange={handleChange} />
 
-        {errorMsg && <p className="error-msg">{errorMsg}</p>}
-        {successMsg && <p className="success-msg">{successMsg}</p>}
+        <label>Username</label>
+        <input type="text" name="username" required onChange={handleChange} />
+
+        <label>Password</label>
+        <input type="password" name="password" required onChange={handleChange} />
+
+        <label>Role</label>
+        <select name="role" value={formData.role} onChange={handleChange}>
+          <option value="patient">Patient</option>
+          <option value="doctor">Doctor</option>
+          <option value="labtech">Lab Technician</option>
+          <option value="admin">Admin</option>
+        </select>
+
         <button type="submit">Register</button>
       </form>
-      <p>
-        Already have an account? <Link to="/login">Login here</Link>
+
+      {message && <p style={{ color: 'green', textAlign: 'center' }}>{message}</p>}
+      <p style={{ textAlign: 'center', marginTop: '1rem' }}>
+        Already registered? <a href="/login">Login</a>
       </p>
     </div>
-  );
+  )
 }
 
-export default Register;
-
+export default Register

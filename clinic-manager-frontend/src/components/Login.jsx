@@ -1,74 +1,85 @@
-// src/components/Login.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './Dashboard.css';
+import axios from 'axios';
+import { parseJwt } from '../route';
 
-function Login() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [errorMsg, setErrorMsg] = useState('');
+const Login = () => {
+  const [formData, setFormData] = useState({ username: '', password: '' });
+  const [message, setMessage] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    try {
+      // Send login request to Flask backend
+      const res = await axios.post('http://localhost:5000/auth/login', formData);
+      const { access_token } = res.data;
 
-    const res = await fetch('http://localhost:5000/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password })
-    });
+      if (!access_token) {
+        setMessage('Login failed: No token received.');
+        return;
+      }
 
-    const data = await res.json();
+      // Store JWT in localStorage
+      localStorage.setItem('token', access_token);
 
-    if (res.ok) {
-      localStorage.setItem('access_token', data.access_token);
-      localStorage.setItem('role', data.user.role);
-      localStorage.setItem('user_id', data.user.id);
+      // Decode JWT to extract user role and id
+      const decoded = parseJwt(access_token);
+      const role = decoded?.sub?.role;
+      const userId = decoded?.sub?.id;
 
-      switch (data.user.role) {
-        case 'admin':
-          navigate('/admin-dashboard');
+      // Store role and id locally for later use
+      localStorage.setItem('role', role);
+      localStorage.setItem('id', userId);
+
+      // Redirect user based on role
+      switch (role) {
+        case 'patient':
+          navigate('/patient-dashboard');
           break;
         case 'doctor':
           navigate('/doctor-dashboard');
           break;
-        case 'patient':
-          navigate('/patient-dashboard');
-          break;
         case 'labtech':
           navigate('/labtech-dashboard');
           break;
+        case 'admin':
+          navigate('/admin-dashboard');
+          break;
         default:
-          setErrorMsg('Invalid user role.');
+          setMessage('Login succeeded but role is unknown.');
       }
-    } else {
-      setErrorMsg(data.message || 'Incorrect login credentials.');
+
+    } catch (err) {
+      console.error("Login error:", err);
+      setMessage(err.response?.data?.msg || 'Login failed');
     }
   };
 
   return (
-    <div className="auth-container">
-      <h2>Smart Clinic Login</h2>
-      <form onSubmit={handleLogin}>
-        <input
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        {errorMsg && <p className="error-msg">{errorMsg}</p>}
+    <div className="container">
+      <h2>Clinic Manager Login</h2>
+      <form onSubmit={handleSubmit}>
+        <label>Username</label>
+        <input type="text" name="username" required onChange={handleChange} />
+
+        <label>Password</label>
+        <input type="password" name="password" required onChange={handleChange} />
+
         <button type="submit">Login</button>
       </form>
+
+      {message && <p style={{ color: 'red', textAlign: 'center' }}>{message}</p>}
+
+      <p style={{ textAlign: 'center', marginTop: '1rem' }}>
+        Don't have an account? <a href="/">Register</a>
+      </p>
     </div>
   );
-}
+};
 
 export default Login;

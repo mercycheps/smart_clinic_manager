@@ -1,47 +1,12 @@
 // src/route.jsx
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Login from './components/Login';
-import Register from './components/Register';
-import PatientDashboard from './components/PatientDashboard';
-import DoctorDashboard from './components/DoctorDashboard';
-import LabTechDashboard from './components/LabTechDashboard';
-import AdminDashboard from './components/AdminDashboard';
-import ProtectedRoute from './components/ProtectedRoute';
 
-function RouteApp() {
-  return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-
-        <Route path="/patient-dashboard" element={
-          <ProtectedRoute>
-            <PatientDashboard />
-          </ProtectedRoute>
-        } />
-
-        <Route path="/doctor-dashboard" element={
-          <ProtectedRoute>
-            <DoctorDashboard />
-          </ProtectedRoute>
-        } />
-
-        <Route path="/labtech-dashboard" element={
-          <ProtectedRoute>
-            <LabTechDashboard />
-          </ProtectedRoute>
-        } />
-
-        <Route path="/admin-dashboard" element={
-          <ProtectedRoute>
-            <AdminDashboard />
-          </ProtectedRoute>
-        } />
-      </Routes>
-    </Router>
-  );
+// You may use this for storing protected route logic or JWT token parsing
+export function parseJwt(token) {
+  if (!token) return null
+  const base64Url = token.split('.')[1]
+  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+  const jsonPayload = decodeURIComponent(atob(base64).split('').map(c =>
+    '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+  ).join(''))
+  return JSON.parse(jsonPayload)
 }
-
-export default RouteApp;
