@@ -1,0 +1,33 @@
+/* src/components/Dashboard.css */
+
+.dashboard {
+  padding: 2rem;
+  background-color: #f4f4f4;
+  min-height: 100vh;
+  font-family: sans-serif;
+}
+
+.dashboard h2 {
+  color: #333;
+}
+
+button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  margin: 0.5rem;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+input, select {
+  padding: 0.5rem;
+  margin: 0.5rem;
+  width: 100%;
+  box-sizing: border-box;
+}
