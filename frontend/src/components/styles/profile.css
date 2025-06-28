@@ -1,0 +1,29 @@
+/* Profile container styling */
+.profile-container {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Heading styling */
+.profile-container h2 {
+    margin-bottom: 20px;
+    font-size: 24px;
+    color: #333;
+    text-align: center;
+}
+
+/* Paragraph styling */
+.profile-container p {
+    font-size: 16px;
+    color: #555;
+    margin: 10px 0;
+}
+
+.profile-container p strong {
+    color: #333;
+}

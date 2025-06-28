@@ -1,91 +1,40 @@
 from flask import Blueprint, request, jsonify
+from models import db, Prescription, HealthRecord
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from app import db
-from models.prescription import Prescription
-from models.appointment import Appointment
-from models.user import User
 
-presc_bp = Blueprint('presc_bp', __name__)
+prescription_bp = Blueprint('prescription_bp', __name__)
 
-# ✅ Doctor assigns prescription to a patient
-@presc_bp.route('/assign', methods=['POST'])
+@prescription_bp.route('/', methods=['POST'])
 @jwt_required()
-def assign_prescription():
-    usr = get_jwt_identity()
-    if usr['role'] != 'doctor':
-        return jsonify({"error": "Unauthorized"}), 403
+def create_prescription():
+    data = request.get_json()
+    current_user_identity = get_jwt_identity()
 
-    data = request.json
-    appt = Appointment.query.get(data['appointment_id'])
-    if not appt or appt.doctor_id != usr['id']:
-        return jsonify({"error": "Appointment not assigned"}), 404
+    if current_user_identity['role'] != 'doctor':
+        return jsonify({'message': 'Only doctors can create prescriptions'}), 403
 
-    presc = Prescription(
-        appointment_id=appt.id,
-        doctor_id=usr['id'],
-        patient_id=appt.patient_id,
-        medications=data['medications']
+    health_record = HealthRecord.query.get(data['health_record_id'])
+    if not health_record:
+        return jsonify({'message': 'Health record not found'}), 404
+    
+    # Optional: Check if the doctor creating the prescription is the one who owns the health record's appointment
+    
+    new_prescription = Prescription(
+        health_record_id=data['health_record_id'],
+        medication=data['medication'],
+        dosage=data['dosage']
     )
-    db.session.add(presc)
+    db.session.add(new_prescription)
     db.session.commit()
-    return jsonify({"message": "Prescription assigned"}), 201
+    return jsonify({'message': 'Prescription created successfully', 'id': new_prescription.id}), 201
 
-# ✅ Doctor views their own prescriptions
-@presc_bp.route('/doctor/<int:did>', methods=['GET'])
+@prescription_bp.route('/record/<int:record_id>', methods=['GET'])
 @jwt_required()
-def prescriptions_by_doctor(did):
-    usr = get_jwt_identity()
-    if usr['role'] != 'doctor' or usr['id'] != did:
-        return jsonify({"error": "Unauthorized"}), 403
-
-    prescs = Prescription.query.filter_by(doctor_id=did).all()
-    return jsonify([
-        {
-            "id": p.id,
-            "appointment_id": p.appointment_id,
-            "patient_id": p.patient_id,
-            "medications": p.medications
-        } for p in prescs
-    ]), 200
-
-# ✅ Patient views their own prescriptions
-@presc_bp.route('/patient/<int:pid>', methods=['GET'])
-@jwt_required()
-def prescriptions_by_patient(pid):
-    usr = get_jwt_identity()
-    if usr['role'] != 'patient' or usr['id'] != pid:
-        return jsonify({"error": "Unauthorized"}), 403
-
-    prescs = Prescription.query.filter_by(patient_id=pid).all()
-    if not prescs:
-        return jsonify({"message": "No prescriptions found"}), 200
-
-    return jsonify([
-        {
-            "id": p.id,
-            "appointment_id": p.appointment_id,
-            "medications": p.medications
-        } for p in prescs
-    ]), 200
-
-# ✅ Admin views all prescriptions
-@presc_bp.route('/all', methods=['GET'])
-@jwt_required()
-def all_prescriptions():
-    usr = get_jwt_identity()
-    if usr['role'] != 'admin':
-        return jsonify({"error": "Only admin can access all prescriptions"}), 403
-
-    prescs = Prescription.query.all()
-    if not prescs:
-        return jsonify({"message": "No prescriptions found"}), 200
-
-    return jsonify([
-        {
-            "id": p.id,
-            "appointment_id": p.appointment_id,
-            "doctor_id": p.doctor_id,
-            "patient_id": p.patient_id,
-            "medications": p.medications
-        } for p in prescs
-    ]), 200
+def get_prescription(record_id):
+    prescription = Prescription.query.filter_by(health_record_id=record_id).first_or_404()
+    return jsonify({
+        'id': prescription.id,
+        'health_record_id': prescription.health_record_id,
+        'medication': prescription.medication,
+        'dosage': prescription.dosage
+    }), 200

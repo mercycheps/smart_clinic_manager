@@ -1,10 +1,3 @@
-from flask_sqlalchemy import SQLAlchemy
+from .models import db, User, Appointment, HealthRecord, Prescription, LabTest
 
-db = SQLAlchemy()
-
-
-from .user import User
-from .appointment import Appointment
-from .health_record import HealthRecord
-from .prescription import Prescription
-#from .lab_technician import LabTechnician  
+__all__ = ['db', 'User', 'Appointment', 'HealthRecord', 'Prescription', 'LabTest']
