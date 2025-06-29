@@ -21,12 +21,12 @@ const DoctorDashboard = () => {
   }, [])
 
   const fetchPatients = async () => {
-    const res = await axios.get('http://localhost:5000/doctor/patients', { headers })
+    const res = await axios.get('http://localhost:3005/doctor/patients', { headers })
     setPatients(res.data)
   }
 
   const fetchLabTechs = async () => {
-    const res = await axios.get('http://localhost:5000/admin/users', { headers })
+    const res = await axios.get('http://localhost:3005/admin/users', { headers })
     const labTechOnly = res.data.filter(user => user.role === 'labtech')
     setLabtechs(labTechOnly)
   }
@@ -34,7 +34,7 @@ const DoctorDashboard = () => {
   const handlePrescribe = async (e) => {
     e.preventDefault()
     try {
-      await axios.post('http://localhost:5000/doctor/prescribe', {
+      await axios.post('http://localhost:3005/doctor/prescribe', {
         patient_id: selectedPatientId,
         content: prescriptionText
       }, { headers })
@@ -48,7 +48,7 @@ const DoctorDashboard = () => {
   const handleRecommendLab = async (e) => {
     e.preventDefault()
     try {
-      await axios.post('http://localhost:5000/doctor/recommend-lab', {
+      await axios.post('http://localhost:3005/doctor/recommend-lab', {
         patient_id: selectedPatientId,
         labtech_id: labtechId,
         description: labtestDescription

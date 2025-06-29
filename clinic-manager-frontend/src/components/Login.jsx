@@ -16,7 +16,7 @@ const Login = () => {
     e.preventDefault();
     try {
       // Send login request to Flask backend
-      const res = await axios.post('http://localhost:5000/auth/login', formData);
+      const res = await axios.post('http://localhost:3005/auth/login', formData);
       const { access_token } = res.data;
 
       if (!access_token) {

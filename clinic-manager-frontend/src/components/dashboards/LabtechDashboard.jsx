@@ -17,7 +17,7 @@ const LabtechDashboard = () => {
 
   const fetchAssignedTests = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/labtech/assigned', { headers })
+      const res = await axios.get('http://localhost:3005/labtech/assigned', { headers })
       setAssignedTests(res.data)
     } catch (err) {
       console.error(err)
@@ -32,7 +32,7 @@ const LabtechDashboard = () => {
     e.preventDefault()
     const results = resultInputs[resultId]
     try {
-      await axios.post('http://localhost:5000/labtech/record', {
+      await axios.post('http://localhost:3005/labtech/record', {
         result_id: resultId,
         results
       }, { headers })

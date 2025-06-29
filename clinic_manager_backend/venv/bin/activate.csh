@@ -8,7 +8,7 @@ alias deactivate 'test $?_OLD_VIRTUAL_PATH != 0 && setenv PATH "$_OLD_VIRTUAL_PA
 # Unset irrelevant variables.
 deactivate nondestructive
 
-setenv VIRTUAL_ENV "/home/nesh/Projects/Clinic_manager/smart_clinic_manager/clinic-manager-backend/venv"
+setenv VIRTUAL_ENV "/Users/planet/development/code/phase-4/smart_clinic_manager/clinic_manager_backend/venv"
 
 set _OLD_VIRTUAL_PATH="$PATH"
 setenv PATH "$VIRTUAL_ENV/bin:$PATH"

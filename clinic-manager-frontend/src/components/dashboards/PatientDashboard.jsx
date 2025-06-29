@@ -28,7 +28,7 @@ const PatientDashboard = () => {
     e.preventDefault();
     try {
       const res = await axios.post(
-        'http://localhost:5000/patient/book',
+        'http://localhost:3005/patient/book',
         formData,
         { headers: { ...headers, 'Content-Type': 'application/json' } }
       );
@@ -42,7 +42,7 @@ const PatientDashboard = () => {
 
   const fetchAppointments = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/patient/appointments', { headers });
+      const res = await axios.get('http://localhost:3005/patient/appointments', { headers });
       setAppointments(res.data);
     } catch (err) {
       console.error("Error fetching appointments:", err);
@@ -51,7 +51,7 @@ const PatientDashboard = () => {
 
   const fetchLabResults = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/patient/lab-results', { headers });
+      const res = await axios.get('http://localhost:3005/patient/lab-results', { headers });
       setLabResults(res.data);
     } catch (err) {
       console.error("Error fetching lab results:", err);
@@ -60,7 +60,7 @@ const PatientDashboard = () => {
 
   const fetchPrescriptions = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/patient/prescriptions', { headers });
+      const res = await axios.get('http://localhost:3005/patient/prescriptions', { headers });
       setPrescriptions(res.data);
     } catch (err) {
       console.error("Error fetching prescriptions:", err);

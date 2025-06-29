@@ -1,4 +1,4 @@
-#!/home/nesh/Projects/Clinic_manager/smart_clinic_manager/clinic-manager-backend/venv/bin/python3
+#!/Users/planet/development/code/phase-4/smart_clinic_manager/clinic_manager_backend/venv/bin/python3
 # -*- coding: utf-8 -*-
 import re
 import sys

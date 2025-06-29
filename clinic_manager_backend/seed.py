@@ -1,4 +1,4 @@
-from run import create_app
+from clinic_manager_backend.app import create_app
 from extensions import db
 from models import User, Appointment
 from werkzeug.security import generate_password_hash

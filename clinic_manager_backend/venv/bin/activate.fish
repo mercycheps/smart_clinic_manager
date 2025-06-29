@@ -29,7 +29,7 @@ end
 # unset irrelevant variables
 deactivate nondestructive
 
-set -gx VIRTUAL_ENV "/home/nesh/Projects/Clinic_manager/smart_clinic_manager/clinic-manager-backend/venv"
+set -gx VIRTUAL_ENV "/Users/planet/development/code/phase-4/smart_clinic_manager/clinic_manager_backend/venv"
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV/bin" $PATH

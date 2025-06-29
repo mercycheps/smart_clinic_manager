@@ -18,7 +18,7 @@ const AdminDashboard = () => {
 
   const fetchUsers = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/admin/users', { headers })
+      const res = await axios.get('http://localhost:3005/admin/users', { headers })
       setUsers(res.data)
       const doctorList = res.data.filter(user => user.role === 'doctor')
       setDoctors(doctorList)
@@ -29,7 +29,7 @@ const AdminDashboard = () => {
 
   const fetchAppointments = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/admin/appointments', { headers })
+      const res = await axios.get('http://localhost:3005/admin/appointments', { headers })
       setAppointments(res.data)
     } catch (err) {
       console.error('Appointment fetch failed', err)
@@ -60,7 +60,7 @@ const AdminDashboard = () => {
     }
 
     try {
-      await axios.post('http://localhost:5000/admin/approve', {
+      await axios.post('http://localhost:3005/admin/approve', {
         appointment_id: appointmentId,
         status: action.status,
         doctor_id: action.status === 'Approved' ? action.doctorId : null
