@@ -1,34 +1,39 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from extensions import db
-from models import Appointment, LabResult, Prescription, User
+from clinic_manager_backend.extensions import db
+from clinic_manager_backend.models import User, Appointment, LabResult, Prescription
 from datetime import datetime
 
 patient_bp = Blueprint('patient', __name__)
 
-# Book appointment
+# Book an appointment
 @patient_bp.route('/book', methods=['POST'])
 @jwt_required()
 def book_appointment():
     identity = get_jwt_identity()
     patient_id = identity['id']
-    data = request.json
+    data = request.get_json()
 
     reason = data.get('reason')
-    date = data.get('date')
+    date_str = data.get('date')
 
-    if not reason or not date:
-        return jsonify({'msg': 'Please provide reason and date'}), 400
+    if not reason or not date_str:
+        return jsonify({'msg': 'Please provide both reason and date'}), 400
+
+    try:
+        date = datetime.strptime(date_str, "%Y-%m-%d")
+    except ValueError:
+        return jsonify({'msg': 'Invalid date format. Use YYYY-MM-DD'}), 400
 
     appointment = Appointment(
         patient_id=patient_id,
         reason=reason,
-        date=datetime.strptime(date, "%Y-%m-%d")
+        date=date
     )
     db.session.add(appointment)
     db.session.commit()
 
-    return jsonify({'msg': 'Appointment booking successful, waiting for confirmation'}), 201
+    return jsonify({'msg': 'Appointment booked successfully. Await confirmation.'}), 201
 
 # Get patient's appointments
 @patient_bp.route('/appointments', methods=['GET'])
@@ -37,48 +42,48 @@ def get_appointments():
     identity = get_jwt_identity()
     patient_id = identity['id']
 
-    appointments = Appointment.query.filter_by(patient_id=patient_id).all()
+    appointments = Appointment.query.filter_by(patient_id=patient_id).order_by(Appointment.date.desc()).all()
     results = [{
         'id': a.id,
         'date': a.date.strftime('%Y-%m-%d'),
         'reason': a.reason,
         'status': a.status,
-        'doctor': User.query.get(a.doctor_id).full_name if a.doctor_id else None
+        'doctor': User.query.get(a.doctor_id).full_name if a.doctor_id else "Not assigned"
     } for a in appointments]
 
     return jsonify(results), 200
 
-# Get patient's lab results
+# Get lab results for patient
 @patient_bp.route('/lab-results', methods=['GET'])
 @jwt_required()
 def get_lab_results():
     identity = get_jwt_identity()
     patient_id = identity['id']
 
-    results = LabResult.query.filter_by(patient_id=patient_id).all()
+    results = LabResult.query.filter_by(patient_id=patient_id).order_by(LabResult.created_at.desc()).all()
     output = [{
         'id': r.id,
-        'results': r.results,
-        'test_description': r.test_description,  # ✅ Added field
+        'test_description': r.test_description,
+        'results': r.results or 'Pending',
         'created_at': r.created_at.strftime('%Y-%m-%d'),
-        'labtech': User.query.get(r.labtech_id).full_name if r.labtech_id else None
+        'labtech': User.query.get(r.labtech_id).full_name if r.labtech_id else "Not assigned"
     } for r in results]
 
     return jsonify(output), 200
 
-# Get patient's prescriptions
+# Get prescriptions for patient
 @patient_bp.route('/prescriptions', methods=['GET'])
 @jwt_required()
 def get_prescriptions():
     identity = get_jwt_identity()
     patient_id = identity['id']
 
-    prescriptions = Prescription.query.filter_by(patient_id=patient_id).all()
+    prescriptions = Prescription.query.filter_by(patient_id=patient_id).order_by(Prescription.created_at.desc()).all()
     output = [{
         'id': p.id,
         'content': p.content,
         'created_at': p.created_at.strftime('%Y-%m-%d'),
-        'doctor': User.query.get(p.doctor_id).full_name if p.doctor_id else None
+        'doctor': User.query.get(p.doctor_id).full_name if p.doctor_id else "Not assigned"
     } for p in prescriptions]
 
     return jsonify(output), 200

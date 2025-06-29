@@ -1,5 +1,3 @@
-// src/components/dashboards/LabtechDashboard.jsx
-
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 
@@ -20,71 +18,74 @@ const LabtechDashboard = () => {
       const res = await axios.get('http://localhost:3005/labtech/assigned', { headers })
       setAssignedTests(res.data)
     } catch (err) {
-      console.error(err)
+      setMessage('Failed to fetch assigned tests')
     }
   }
 
   const handleChange = (id, value) => {
-    setResultInputs({ ...resultInputs, [id]: value })
+    setResultInputs(prev => ({ ...prev, [id]: value }))
   }
 
   const handleSubmit = async (e, resultId) => {
     e.preventDefault()
     const results = resultInputs[resultId]
+    if (!results) {
+      setMessage('Please enter a result before submitting.')
+      return
+    }
     try {
       await axios.post('http://localhost:3005/labtech/record', {
         result_id: resultId,
         results
       }, { headers })
-      setMessage('✅ Lab result submitted.')
+      setMessage('Lab result submitted successfully.')
+      setResultInputs(prev => ({ ...prev, [resultId]: '' })) // Clear input
       fetchAssignedTests()
     } catch (err) {
-      setMessage(err.response?.data?.msg || '❌ Submission failed')
+      setMessage(err.response?.data?.msg || 'Submission failed.')
     }
   }
 
   return (
     <div className="container">
-      <header>Lab Technician Dashboard</header>
+      <h2>Lab Technician Dashboard</h2>
 
       <h3>Assigned Lab Tests</h3>
-      <div className="table-container">
-        {assignedTests.length > 0 ? (
-          <table>
-            <thead>
-              <tr>
-                <th>Patient</th>
-                <th>Test Description</th>
-                <th>Existing Results</th>
-                <th>Submit New Result</th>
+      {assignedTests.length > 0 ? (
+        <table>
+          <thead>
+            <tr>
+              <th>Patient</th>
+              <th>Test Description</th>
+              <th>Existing Results</th>
+              <th>Submit New Result</th>
+            </tr>
+          </thead>
+          <tbody>
+            {assignedTests.map((test) => (
+              <tr key={test.id}>
+                <td>{test.patient_name}</td>
+                <td>{test.test_description || <em>Not specified</em>}</td>
+                <td>{test.results || <em>Pending</em>}</td>
+                <td>
+                  <form onSubmit={(e) => handleSubmit(e, test.id)}>
+                    <input
+                      type="text"
+                      placeholder="Enter result"
+                      value={resultInputs[test.id] || ''}
+                      onChange={(e) => handleChange(test.id, e.target.value)}
+                      required
+                    />
+                    <button type="submit">Save</button>
+                  </form>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {assignedTests.map((test) => (
-                <tr key={test.id}>
-                  <td>{test.patient_name}</td>
-                  <td>{test.test_description || <span style={{ color: 'gray' }}>Not specified</span>}</td>
-                  <td>{test.results || <span style={{ color: 'gray' }}>Pending</span>}</td>
-                  <td>
-                    <form onSubmit={(e) => handleSubmit(e, test.id)}>
-                      <input
-                        type="text"
-                        value={resultInputs[test.id] || ''}
-                        onChange={(e) => handleChange(test.id, e.target.value)}
-                        placeholder="Enter result"
-                        required
-                      />
-                      <button type="submit">Save</button>
-                    </form>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <p>No lab assignments available.</p>
-        )}
-      </div>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <p>No lab test assignments yet.</p>
+      )}
 
       {message && <p style={{ color: 'green', marginTop: '1rem' }}>{message}</p>}
     </div>

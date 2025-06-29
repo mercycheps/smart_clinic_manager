@@ -1,74 +1,93 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from extensions import db
-from models import Appointment, LabResult, Prescription, User
+from clinic_manager_backend.extensions import db
+from clinic_manager_backend.models import User, Appointment, LabResult, Prescription, HealthRecord
 from datetime import datetime
 
 doctor_bp = Blueprint('doctor', __name__)
 
+# Get assigned patients with their lab results
 @doctor_bp.route('/patients', methods=['GET'])
 @jwt_required()
 def get_assigned_patients():
     identity = get_jwt_identity()
     doctor_id = identity['id']
 
-    appointments = Appointment.query.filter_by(doctor_id=doctor_id, status='Approved').all()
-    output = []
+    appointments = Appointment.query.filter_by(doctor_id=doctor_id).all()
+    patients_info = []
+
     for appt in appointments:
         patient = User.query.get(appt.patient_id)
-        lab_results = LabResult.query.filter_by(patient_id=appt.patient_id).all()
-        results = [{
-            'id': r.id,
-            'results': r.results,
-            'created_at': r.created_at.strftime('%Y-%m-%d'),
-            'test_description': r.test_description
-        } for r in lab_results]
+        lab_results = LabResult.query.filter_by(patient_id=patient.id).all()
+        lab_results_data = [{
+            'id': lr.id,
+            'test_description': lr.test_description,
+            'results': lr.results or 'Pending',
+            'created_at': lr.created_at.strftime('%Y-%m-%d') if lr.created_at else None
+        } for lr in lab_results]
 
-        output.append({
+        patients_info.append({
             'appointment_id': appt.id,
             'patient_id': patient.id,
             'patient_name': patient.full_name,
-            'lab_results': results
+            'lab_results': lab_results_data
         })
 
-    return jsonify(output), 200
+    return jsonify(patients_info), 200
 
-@doctor_bp.route('/prescribe', methods=['POST'])
+# Create a health record for a patient
+@doctor_bp.route('/health-records', methods=['POST'])
 @jwt_required()
-def give_prescription():
+def create_health_record():
     identity = get_jwt_identity()
     doctor_id = identity['id']
-    data = request.json
+    data = request.get_json()
+
+    patient_id = data.get('patient_id')
+    notes = data.get('notes')
+
+    if not patient_id or not notes:
+        return jsonify({'msg': 'Missing patient_id or notes'}), 400
+
+    record = HealthRecord(patient_id=patient_id, notes=notes)
+    db.session.add(record)
+    db.session.commit()
+
+    return jsonify({'msg': 'Health record created'}), 201
+
+# Create a prescription for a patient
+@doctor_bp.route('/prescriptions', methods=['POST'])
+@jwt_required()
+def create_prescription():
+    identity = get_jwt_identity()
+    doctor_id = identity['id']
+    data = request.get_json()
 
     patient_id = data.get('patient_id')
     content = data.get('content')
 
-    if not all([patient_id, content]):
-        return jsonify({'msg': 'Missing required fields'}), 400
+    if not patient_id or not content:
+        return jsonify({'msg': 'Missing patient_id or content'}), 400
 
-    prescription = Prescription(
-        patient_id=patient_id,
-        doctor_id=doctor_id,
-        content=content,
-        created_at=datetime.utcnow()
-    )
+    prescription = Prescription(patient_id=patient_id, doctor_id=doctor_id, content=content)
     db.session.add(prescription)
     db.session.commit()
 
-    return jsonify({'msg': 'Prescription saved successfully'}), 201
+    return jsonify({'msg': 'Prescription created'}), 201
 
-@doctor_bp.route('/recommend-lab', methods=['POST'])
+# Assign a lab test to a lab technician
+@doctor_bp.route('/lab-tests', methods=['POST'])
 @jwt_required()
-def recommend_lab_test():
+def assign_lab_test():
     identity = get_jwt_identity()
     doctor_id = identity['id']
-    data = request.json
+    data = request.get_json()
 
     patient_id = data.get('patient_id')
     labtech_id = data.get('labtech_id')
-    test_description = data.get('description')  # matches frontend field
+    test_description = data.get('test_description')
 
-    if not all([patient_id, labtech_id, test_description]):
+    if not patient_id or not labtech_id or not test_description:
         return jsonify({'msg': 'Missing required fields'}), 400
 
     lab_result = LabResult(
@@ -76,9 +95,10 @@ def recommend_lab_test():
         doctor_id=doctor_id,
         labtech_id=labtech_id,
         test_description=test_description,
-        created_at=datetime.utcnow()
+        results=None,
+        created_at=None
     )
     db.session.add(lab_result)
     db.session.commit()
 
-    return jsonify({'msg': 'Lab test assigned to lab technician'}), 201
+    return jsonify({'msg': 'Lab test assigned successfully'}), 201
