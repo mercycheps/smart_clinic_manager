@@ -1,4 +1,4 @@
-from extensions import db
+from clinic_manager_backend.extensions import db  # ✅ Corrected import
 from datetime import datetime
 
 class User(db.Model):
@@ -12,16 +12,10 @@ class User(db.Model):
     appointments = db.relationship('Appointment', backref='patient', lazy=True, foreign_keys='Appointment.patient_id')
     assigned_appointments = db.relationship('Appointment', backref='doctor', lazy=True, foreign_keys='Appointment.doctor_id')
 
-    # Lab results where user is the lab technician
     lab_results_as_tech = db.relationship('LabResult', backref='labtech', lazy=True, foreign_keys='LabResult.labtech_id')
-
-    # Lab results where user is the patient
     lab_results_as_patient = db.relationship('LabResult', backref='patient_user', lazy=True, foreign_keys='LabResult.patient_id')
 
-    # Prescriptions given as doctor
     prescriptions_given = db.relationship('Prescription', backref='doctor', lazy=True, foreign_keys='Prescription.doctor_id')
-
-    # Prescriptions received as patient
     prescriptions_received = db.relationship('Prescription', backref='patient_user', lazy=True, foreign_keys='Prescription.patient_id')
 
 class Appointment(db.Model):
@@ -43,8 +37,8 @@ class LabResult(db.Model):
     patient_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     doctor_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     labtech_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
-    test_description = db.Column(db.Text, nullable=True)  # What test is required
-    results = db.Column(db.Text, nullable=True)           # Final results
+    test_description = db.Column(db.Text, nullable=True)
+    results = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Prescription(db.Model):
