@@ -1,4 +1,4 @@
-# utils.py
+# backend/app/utils.py
 
 from flask import jsonify
 from flask_jwt_extended import get_jwt_identity
@@ -12,7 +12,7 @@ def role_required(required_role):
         def wrapper(*args, **kwargs):
             identity = get_jwt_identity()
             if identity.get('role') != required_role:
-                return jsonify({'msg': 'Unauthorized: Requires {} access'.format(required_role)}), 403
+                return jsonify({'msg': f'Unauthorized: Requires {required_role} access'}), 403
             return func(*args, **kwargs)
         return wrapper
     return decorator
@@ -24,7 +24,7 @@ def roles_required(*roles):
         def wrapper(*args, **kwargs):
             identity = get_jwt_identity()
             if identity.get('role') not in roles:
-                return jsonify({'msg': 'Unauthorized: Requires one of {}'.format(roles)}), 403
+                return jsonify({'msg': f'Unauthorized: Requires one of {roles}'}), 403
             return func(*args, **kwargs)
         return wrapper
     return decorator

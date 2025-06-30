@@ -1,10 +1,11 @@
-# clinic_manager_backend/routes/__init__.py
+# app/routes/__init__.py
+# Registers all role-based blueprints
 
-from .auth import auth_bp
-from .admin import admin_bp
-from .patient import patient_bp
-from .doctor import doctor_bp
-from .labtech import labtech_bp
+from app.routes.auth import auth_bp
+from app.routes.admin import admin_bp
+from app.routes.patient import patient_bp
+from app.routes.doctor import doctor_bp
+from app.routes.labtech import labtech_bp
 
 def register_routes(app):
     app.register_blueprint(auth_bp, url_prefix='/auth')

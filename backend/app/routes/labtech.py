@@ -1,12 +1,12 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from backend.app.extensions import db
-from backend.app.models.models import User, LabResult
+from app.extensions import db
+from app.models import User, LabResult
 from datetime import datetime
 
 labtech_bp = Blueprint('labtech', __name__)
 
-# GET all lab tests assigned to this lab technician
+# ✅ GET all lab tests assigned to this lab technician
 @labtech_bp.route('/assigned', methods=['GET'])
 @jwt_required()
 def get_assigned_tests():
@@ -20,21 +20,22 @@ def get_assigned_tests():
         patient = User.query.get(result.patient_id)
         output.append({
             'id': result.id,
-            'patient_name': patient.full_name,
+            'patient_name': patient.full_name if patient else 'Unknown',
             'test_description': result.test_description,
-            'results': result.results,
+            'results': result.results or 'Pending',
             'created_at': result.created_at.strftime('%Y-%m-%d') if result.created_at else None
         })
 
     return jsonify(output), 200
 
-# POST lab test result for an assigned lab result
+
+# ✅ POST lab test result for an assigned lab result
 @labtech_bp.route('/record', methods=['POST'])
 @jwt_required()
 def record_result():
     identity = get_jwt_identity()
     labtech_id = identity['id']
-    data = request.json
+    data = request.get_json()
 
     result_id = data.get('result_id')
     results = data.get('results')
@@ -43,7 +44,6 @@ def record_result():
         return jsonify({'msg': 'Missing result_id or results field'}), 400
 
     lab_result = LabResult.query.get(result_id)
-
     if not lab_result:
         return jsonify({'msg': 'Lab result not found'}), 404
 

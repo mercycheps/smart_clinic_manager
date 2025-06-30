@@ -1,12 +1,13 @@
 from flask import Blueprint, request, jsonify
-from backend.app.extensions import db
-from backend.app.models.models import User
-from werkzeug.security import check_password_hash, generate_password_hash
+from app.extensions import db
+from app.models import User
+from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token
 from datetime import timedelta
 
 auth_bp = Blueprint('auth', __name__)
 
+# ✅ Login route
 @auth_bp.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
@@ -36,6 +37,7 @@ def login():
     }), 200
 
 
+# ✅ Register route
 @auth_bp.route('/register', methods=['POST', 'OPTIONS'])
 def register():
     if request.method == 'OPTIONS':
@@ -57,6 +59,7 @@ def register():
         return jsonify({'msg': 'Username already exists'}), 409
 
     hashed_password = generate_password_hash(password)
+
     new_user = User(
         full_name=full_name,
         username=username,

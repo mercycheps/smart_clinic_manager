@@ -1,9 +1,9 @@
-# clinic_manager_backend/run.py
+# backend/app.py
 
 from flask.cli import FlaskGroup
-from backend.app.models import create_app
-from backend.app.extensions import db
-from backend.app.models.models import *  # Ensure all models are imported for migrations
+from app import create_app
+from app.extensions import db
+from app.models.models import *  # Import all models so Flask-Migrate can detect them
 
 app = create_app()
 cli = FlaskGroup(app)
