@@ -6,7 +6,7 @@ from datetime import datetime
 
 patient_bp = Blueprint('patient', __name__)
 
-# ✅ Book an appointment
+# ✅ Book an appointment (expects reason and date)
 @patient_bp.route('/book', methods=['POST'])
 @jwt_required()
 def book_appointment():
@@ -18,84 +18,81 @@ def book_appointment():
     date_str = data.get('date')
 
     if not reason or not date_str:
-        return jsonify({'msg': 'Please provide both reason and date'}), 400
+        return jsonify({'msg': '❌ Reason and date are required'}), 422
 
     try:
-        date = datetime.strptime(date_str, "%Y-%m-%d")
+        appointment_date = datetime.strptime(date_str, '%Y-%m-%d')
     except ValueError:
-        return jsonify({'msg': 'Invalid date format. Use YYYY-MM-DD'}), 400
+        return jsonify({'msg': '❌ Invalid date format. Use YYYY-MM-DD'}), 400
 
-    appointment = Appointment(
+    new_appt = Appointment(
         patient_id=patient_id,
         reason=reason,
-        date=date
+        status='Pending',
+        date=appointment_date
     )
-    db.session.add(appointment)
+    db.session.add(new_appt)
     db.session.commit()
 
-    return jsonify({'msg': 'Appointment booked successfully. Await confirmation.'}), 201
+    return jsonify({'msg': '✅ Appointment booked successfully'}), 201
 
-
-# ✅ Get all appointments for the patient
+# ✅ View own appointments
 @patient_bp.route('/appointments', methods=['GET'])
 @jwt_required()
 def get_appointments():
     identity = get_jwt_identity()
     patient_id = identity['id']
 
-    appointments = Appointment.query.filter_by(patient_id=patient_id).order_by(Appointment.date.desc()).all()
-    result = []
+    appointments = Appointment.query.filter_by(patient_id=patient_id).all()
+    output = []
     for appt in appointments:
-        doctor = User.query.get(appt.doctor_id)
-        result.append({
+        doctor = User.query.get(appt.doctor_id) if appt.doctor_id else None
+        output.append({
             'id': appt.id,
-            'date': appt.date.strftime('%Y-%m-%d'),
-            'reason': appt.reason,
+            'date': appt.date.isoformat(),
             'status': appt.status,
-            'doctor': doctor.full_name if doctor else "Not assigned"
+            'reason': appt.reason,
+            'doctor_id': appt.doctor_id,
+            'doctor_name': doctor.full_name if doctor else 'Not Assigned'
         })
+    return jsonify(output), 200
 
-    return jsonify(result), 200
-
-
-# ✅ Get lab results for the patient
+# ✅ View lab results
 @patient_bp.route('/lab-results', methods=['GET'])
 @jwt_required()
 def get_lab_results():
     identity = get_jwt_identity()
     patient_id = identity['id']
 
-    results = LabResult.query.filter_by(patient_id=patient_id).order_by(LabResult.created_at.desc()).all()
+    results = LabResult.query.filter_by(patient_id=patient_id).all()
     output = []
-    for r in results:
-        labtech = User.query.get(r.labtech_id)
+    for res in results:
         output.append({
-            'id': r.id,
-            'test_description': r.test_description or "No description",
-            'results': r.results or 'Pending',
-            'created_at': r.created_at.strftime('%Y-%m-%d') if r.created_at else "N/A",
-            'labtech': labtech.full_name if labtech else "Not assigned"
+            'id': res.id,
+            'test_description': res.test_description,
+            'results': res.results,
+            'labtech_id': res.labtech_id,
+            'doctor_id': res.doctor_id,
+            'created_at': res.created_at.isoformat() if res.created_at else None
         })
-
     return jsonify(output), 200
 
-
-# ✅ Get prescriptions for the patient
+# ✅ View prescriptions
 @patient_bp.route('/prescriptions', methods=['GET'])
 @jwt_required()
 def get_prescriptions():
     identity = get_jwt_identity()
     patient_id = identity['id']
 
-    prescriptions = Prescription.query.filter_by(patient_id=patient_id).order_by(Prescription.created_at.desc()).all()
+    prescriptions = Prescription.query.filter_by(patient_id=patient_id).all()
     output = []
     for p in prescriptions:
         doctor = User.query.get(p.doctor_id)
         output.append({
             'id': p.id,
-            'content': p.content,
-            'created_at': p.created_at.strftime('%Y-%m-%d') if p.created_at else "N/A",
-            'doctor': doctor.full_name if doctor else "Not assigned"
+            'doctor_id': p.doctor_id,
+            'doctor_name': doctor.full_name if doctor else 'Unknown',
+            'content': p.notes,
+            'created_at': p.created_at.isoformat() if p.created_at else None
         })
-
     return jsonify(output), 200

@@ -7,6 +7,10 @@ class User(db.Model):
     password = db.Column(db.String(200), nullable=False)
     full_name = db.Column(db.String(200), nullable=False)
 
+    # ✅ Add missing fields
+    gender = db.Column(db.String(10), nullable=True)
+    age = db.Column(db.Integer, nullable=True)
+
     # Relationships
     appointments = db.relationship('Appointment', backref='patient', lazy=True, foreign_keys='Appointment.patient_id')
     assigned_appointments = db.relationship('Appointment', backref='doctor', lazy=True, foreign_keys='Appointment.doctor_id')
