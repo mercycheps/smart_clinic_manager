@@ -190,7 +190,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 🙌 Acknowledgements
 Titus Kiprono
 Collins Muriuki
-Mercy Chebet
+Mercy Maritim
 Dennis Muchiri
 
-Special thanks to Flask, React, PostgreSQL, and the open-source community.# smart_clinic_manager   Mercy ongeza hyo alafu upush juu mimi nilialter repo yangu hulku so nikipush italeta conflicts
+Special thanks to Flask, React, PostgreSQL, and the open-source community.# smart_clinic_manager   
