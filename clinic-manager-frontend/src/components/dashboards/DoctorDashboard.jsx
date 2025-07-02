@@ -1,5 +1,3 @@
-// src/components/dashboards/DoctorDashboard.jsx
-
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 
@@ -21,20 +19,32 @@ const DoctorDashboard = () => {
   }, [])
 
   const fetchPatients = async () => {
-    const res = await axios.get('http://localhost:3005/doctor/patients', { headers })
-    setPatients(res.data)
+
+    try {
+      const res = await axios.get('http://localhost:5000/doctor/patients', { headers })
+      setPatients(res.data)
+    } catch (err) {
+      setMessage('Failed to fetch patients')
+    }
   }
 
   const fetchLabTechs = async () => {
-    const res = await axios.get('http://localhost:3005/admin/users', { headers })
-    const labTechOnly = res.data.filter(user => user.role === 'labtech')
-    setLabtechs(labTechOnly)
+    try {
+      const res = await axios.get('http://localhost:5000/admin/users', { headers })
+      const labTechOnly = res.data.filter(user => user.role === 'labtech')
+      setLabtechs(labTechOnly)
+    } catch (err) {
+      setMessage('Failed to fetch lab technicians')
+    }
+
   }
 
   const handlePrescribe = async (e) => {
     e.preventDefault()
     try {
-      await axios.post('http://localhost:3005/doctor/prescribe', {
+
+      await axios.post('http://localhost:5000/doctor/prescriptions', {
+
         patient_id: selectedPatientId,
         content: prescriptionText
       }, { headers })
@@ -48,12 +58,14 @@ const DoctorDashboard = () => {
   const handleRecommendLab = async (e) => {
     e.preventDefault()
     try {
-      await axios.post('http://localhost:3005/doctor/recommend-lab', {
+
+      await axios.post('http://localhost:5000/doctor/lab-tests', {
+
         patient_id: selectedPatientId,
         labtech_id: labtechId,
-        description: labtestDescription
+        test_description: labtestDescription
       }, { headers })
-      setMessage('Lab test recommended to lab technician.')
+      setMessage('Lab test assigned to lab technician.')
       setLabtechId('')
       setLabtestDescription('')
     } catch (err) {
@@ -84,7 +96,9 @@ const DoctorDashboard = () => {
                     {p.lab_results.length > 0 ? (
                       <ul>
                         {p.lab_results.map((res) => (
-                          <li key={res.id}>{res.results || 'Pending'} ({res.created_at})</li>
+                          <li key={res.id}>
+                            {res.test_description}: {res.results} ({res.created_at || 'Pending'})
+                          </li>
                         ))}
                       </ul>
                     ) : 'None'}
@@ -114,7 +128,7 @@ const DoctorDashboard = () => {
           </form>
 
           <hr />
-          <h3>Recommend Lab Test</h3>
+          <h3>Assign Lab Test</h3>
           <form onSubmit={handleRecommendLab}>
             <label>Select Lab Technician</label>
             <select value={labtechId} onChange={(e) => setLabtechId(e.target.value)} required>
@@ -134,7 +148,7 @@ const DoctorDashboard = () => {
         </>
       )}
 
-      {message && <p style={{ color: 'green' }}>{message}</p>}
+      {message && <p style={{ color: 'green', marginTop: '1rem' }}>{message}</p>}
     </div>
   )
 }

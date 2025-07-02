@@ -1,85 +1,102 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react'
+import axios from 'axios'
+import { useNavigate } from 'react-router-dom'
 
 const PatientDashboard = () => {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
+  const token = localStorage.getItem('token')
+  const headers = { Authorization: `Bearer ${token}` }
 
-  const token = localStorage.getItem('token');
-  const headers = token ? { Authorization: `Bearer ${token}` } : {};
-  const [formData, setFormData] = useState({ reason: '', date: '' });
-  const [appointments, setAppointments] = useState([]);
-  const [labResults, setLabResults] = useState([]);
-  const [prescriptions, setPrescriptions] = useState([]);
-  const [message, setMessage] = useState('');
+  const [formData, setFormData] = useState({ reason: '', date: '' })
+  const [appointments, setAppointments] = useState([])
+  const [labResults, setLabResults] = useState([])
+  const [prescriptions, setPrescriptions] = useState([])
+  const [message, setMessage] = useState('')
 
   useEffect(() => {
     if (!token) {
-      alert('Session expired or not logged in. Redirecting to login.');
-      navigate('/login');
+      alert('Please log in first.')
+      navigate('/login')
+    } else {
+      fetchAppointments()
+      fetchLabResults()
+      fetchPrescriptions()
     }
-  }, [navigate, token]);
+  }, [navigate, token])
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }))
+  }
 
   const handleBook = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
     try {
-      const res = await axios.post(
-        'http://localhost:3005/patient/book',
-        formData,
-        { headers: { ...headers, 'Content-Type': 'application/json' } }
-      );
-      setMessage(res.data.msg || 'Appointment booked successfully. Awaiting confirmation.');
-      setFormData({ reason: '', date: '' });
+
+      const res = await axios.post('http://localhost:5000/patient/book', formData, { headers })
+      setMessage(res.data.msg || 'Appointment booked successfully.')
+      setFormData({ reason: '', date: '' })
+      fetchAppointments()
+
     } catch (err) {
-      console.error("❌ Booking error:", err.response?.data || err.message);
-      setMessage(err.response?.data?.msg || 'Booking failed');
+      setMessage(err.response?.data?.msg || 'Booking failed.')
     }
-  };
+  }
 
   const fetchAppointments = async () => {
     try {
-      const res = await axios.get('http://localhost:3005/patient/appointments', { headers });
-      setAppointments(res.data);
+
+      const res = await axios.get('http://localhost:5000/patient/appointments', { headers })
+      setAppointments(res.data)
+
     } catch (err) {
-      console.error("Error fetching appointments:", err);
+      setMessage('Failed to load appointments.')
     }
-  };
+  }
 
   const fetchLabResults = async () => {
     try {
-      const res = await axios.get('http://localhost:3005/patient/lab-results', { headers });
-      setLabResults(res.data);
+
+      const res = await axios.get('http://localhost:5000/patient/lab-results', { headers })
+      setLabResults(res.data)
+
     } catch (err) {
-      console.error("Error fetching lab results:", err);
+      setMessage('Failed to load lab results.')
     }
-  };
+  }
 
   const fetchPrescriptions = async () => {
     try {
-      const res = await axios.get('http://localhost:3005/patient/prescriptions', { headers });
-      setPrescriptions(res.data);
+
+      const res = await axios.get('http://localhost:5000/patient/prescriptions', { headers })
+      setPrescriptions(res.data)
+
     } catch (err) {
-      console.error("Error fetching prescriptions:", err);
+      setMessage('Failed to load prescriptions.')
     }
-  };
+  }
 
   return (
     <div className="container">
-      <h2>Welcome to Patient Dashboard</h2>
-      <header>Smart Clinic Manager Dashboard</header>
-
+      <h2>Patient Dashboard</h2>
 
       <h3>Book Appointment</h3>
       <form onSubmit={handleBook}>
         <label>Reason for Appointment</label>
-        <textarea name="reason" required value={formData.reason} onChange={handleChange} />
+        <textarea
+          name="reason"
+          required
+          value={formData.reason}
+          onChange={handleChange}
+        />
 
         <label>Preferred Date</label>
-        <input type="date" name="date" required value={formData.date} onChange={handleChange} />
+        <input
+          type="date"
+          name="date"
+          required
+          value={formData.date}
+          onChange={handleChange}
+        />
 
         <button type="submit">Book Appointment</button>
       </form>
@@ -90,96 +107,92 @@ const PatientDashboard = () => {
 
       <h3>Your Appointments</h3>
       <button onClick={fetchAppointments}>Load Appointments</button>
-      <div className="table-container">
-        {appointments.length > 0 ? (
-          <table>
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Reason</th>
-                <th>Status</th>
-                <th>Doctor</th>
+      {appointments.length > 0 ? (
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Reason</th>
+              <th>Status</th>
+              <th>Doctor</th>
+            </tr>
+          </thead>
+          <tbody>
+            {appointments.map((appt) => (
+              <tr key={appt.id}>
+                <td>{appt.date}</td>
+                <td>{appt.reason}</td>
+                <td>
+                  {appt.status === 'Approved' && <span style={{ color: 'green' }}>✅ Approved</span>}
+                  {appt.status === 'Rejected' && <span style={{ color: 'red' }}>❌ Rejected</span>}
+                  {appt.status === 'Pending' && <span style={{ color: 'orange' }}>⏳ Pending</span>}
+                </td>
+                <td>{appt.doctor}</td>
               </tr>
-            </thead>
-            <tbody>
-              {appointments.map((appt) => (
-                <tr key={appt.id}>
-                  <td>{appt.date}</td>
-                  <td>{appt.reason}</td>
-                  <td>
-                    {appt.status === 'Approved' && <span style={{ color: 'green' }}>✅ Approved</span>}
-                    {appt.status === 'Rejected' && <span style={{ color: 'red' }}>❌ Rejected</span>}
-                    {appt.status === 'Pending' && <span style={{ color: 'orange' }}>⏳ Pending</span>}
-                  </td>
-                  <td>{appt.doctor || 'Not Assigned'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <p>No appointments yet.</p>
-        )}
-      </div>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <p>No appointments found.</p>
+      )}
 
       <hr />
 
       <h3>Lab Results</h3>
       <button onClick={fetchLabResults}>Load Lab Results</button>
-      <div className="table-container">
-        {labResults.length > 0 ? (
-          <table>
-            <thead>
-              <tr>
-                <th>Results</th>
-                <th>Lab Technician</th>
-                <th>Date</th>
+      {labResults.length > 0 ? (
+        <table>
+          <thead>
+            <tr>
+              <th>Test</th>
+              <th>Results</th>
+              <th>Lab Technician</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {labResults.map((res) => (
+              <tr key={res.id}>
+                <td>{res.test_description || 'N/A'}</td>
+                <td>{res.results || 'Pending'}</td>
+                <td>{res.labtech}</td>
+                <td>{res.created_at}</td>
               </tr>
-            </thead>
-            <tbody>
-              {labResults.map((res) => (
-                <tr key={res.id}>
-                  <td>{res.results || 'Pending'}</td>
-                  <td>{res.labtech || 'N/A'}</td>
-                  <td>{res.created_at || 'N/A'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <p>No lab results found.</p>
-        )}
-      </div>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <p>No lab results found.</p>
+      )}
 
       <hr />
 
       <h3>Prescriptions</h3>
       <button onClick={fetchPrescriptions}>Load Prescriptions</button>
-      <div className="table-container">
-        {prescriptions.length > 0 ? (
-          <table>
-            <thead>
-              <tr>
-                <th>Prescription</th>
-                <th>Doctor</th>
-                <th>Date</th>
+      {prescriptions.length > 0 ? (
+        <table>
+          <thead>
+            <tr>
+              <th>Prescription</th>
+              <th>Doctor</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {prescriptions.map((pres) => (
+              <tr key={pres.id}>
+                <td>{pres.content}</td>
+                <td>{pres.doctor}</td>
+                <td>{pres.created_at}</td>
               </tr>
-            </thead>
-            <tbody>
-              {prescriptions.map((pres) => (
-                <tr key={pres.id}>
-                  <td>{pres.content}</td>
-                  <td>{pres.doctor}</td>
-                  <td>{pres.created_at}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <p>No prescriptions available.</p>
-        )}
-      </div>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <p>No prescriptions found.</p>
+      )}
     </div>
-  );
-};
+  )
+}
 
-export default PatientDashboard;
+export default PatientDashboard

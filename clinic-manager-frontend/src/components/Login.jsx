@@ -15,8 +15,9 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Send login request to Flask backend
-      const res = await axios.post('http://localhost:3005/auth/login', formData);
+
+      const res = await axios.post('http://localhost:5000/auth/login', formData);
+
       const { access_token } = res.data;
 
       if (!access_token) {
@@ -24,19 +25,20 @@ const Login = () => {
         return;
       }
 
-      // Store JWT in localStorage
       localStorage.setItem('token', access_token);
 
-      // Decode JWT to extract user role and id
       const decoded = parseJwt(access_token);
       const role = decoded?.sub?.role;
       const userId = decoded?.sub?.id;
 
-      // Store role and id locally for later use
+      if (!role) {
+        setMessage('Login succeeded but role is unknown.');
+        return;
+      }
+
       localStorage.setItem('role', role);
       localStorage.setItem('id', userId);
 
-      // Redirect user based on role
       switch (role) {
         case 'patient':
           navigate('/patient-dashboard');
