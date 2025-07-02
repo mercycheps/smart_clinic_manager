@@ -193,4 +193,4 @@ Collins Muriuki
 Mercy Chebet
 Dennis Muchiri
 
-Special thanks to Flask, React, PostgreSQL, and the open-source community.# smart_clinic_manager   Mercy ongeza hyo alafu upush juu mimi nilialter repo yangu hulku so nikipush italeta conflicts
+Special thanks to Flask, React, PostgreSQL, and the open-source community.# smart_clinic_manager   
